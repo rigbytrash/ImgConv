@@ -19,6 +19,10 @@ int main(int argc, char **argv)
     // validate that user has enter 2 arguments (plus the executable name)
     if (argc != 3)
         { // check arg count
+            if(argc == 1){
+                printf("Usage: ebfEcho file1 file2\n");
+                return SUCCESS;
+            }
         printf("ERROR: Bad Arguments\n");
         return BAD_ARGS;
         } // check arg count
@@ -26,7 +30,7 @@ int main(int argc, char **argv)
     // create a char array to hold magic number
     // and cast to short
     unsigned char magicNumber[2];
-    unsigned short *magicNumberValue = (unsigned short *)magicNumber;
+    
 
     // create and initialise variables used within code
     int width = 0, height = 0;
@@ -36,21 +40,25 @@ int main(int argc, char **argv)
     // open the input file in read mode
     FILE *inputFile = fopen(argv[1], "r");
     // check file opened successfully
+
+
+    
     if (!inputFile)
         { // check file pointer
-        printf("ERROR: Bad File Name\n");
+        printf("ERROR: Bad File Name (1)\n");
         return BAD_FILE;
         } // check file pointer
 
     // get first 2 characters which should be magic number
     magicNumber[0] = getc(inputFile);
     magicNumber[1] = getc(inputFile);
+    unsigned short *magicNumberValue = (unsigned short *)magicNumber;
 
     // checking against the casted value due to endienness.
     if (*magicNumberValue != MAGIC_NUMBER)
         { // check magic number
-        printf("ERROR: Bad Magic Number\n");
-        return BAD_FILE;
+        printf("ERROR: Bad Magic Number (%s)\n", argv[1]);
+        return BAD_MAGIC_NUMBER;
         } //check magic number
 
     // scan for the dimensions
@@ -61,7 +69,7 @@ int main(int argc, char **argv)
         // close the file as soon as an error is found
         fclose(inputFile);
         // print appropriate error message and return
-        printf("ERROR: Bad Dimensions\n");
+        printf("ERROR: Bad Dimensions (%s)\n", argv[1]);
         return BAD_DIM;
         } // check dimensions
 
@@ -73,7 +81,7 @@ int main(int argc, char **argv)
     if (imageData == NULL)
         { // check malloc
         fclose(inputFile);
-        printf("ERROR: Malloc Failed\n");
+        printf("ERROR: Image Malloc Failed\n");
         return BAD_MALLOC;
         } // check malloc
 
@@ -101,7 +109,7 @@ int main(int argc, char **argv)
     if (outputFile == NULL)
         { // validate output file
         free(imageData);
-        printf("ERROR: Bad File Name\n");
+        printf("ERROR: Bad File Name (2)\n");
         return BAD_FILE;
         } // validate output file
 
