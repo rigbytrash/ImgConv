@@ -7,11 +7,20 @@
 # this ensures you have permission to run this script
 # you should only need to do this once.
 
+
+
 # You can then run with: 
 # ./test.sh
 # You can save your tests into a file using:
 # ./tests.sh > name_of_file.txt
 # you can edit which executables to run on line 90.
+
+# checking for the -echo option.
+ECHO=0
+if [[ $1 = '-echo' ]]
+then
+    ECHO=1
+fi
 
 # we clean up object files and then recompile as standard
 # this is because when you may be working across multiple devices
@@ -53,6 +62,12 @@ score=0
 # and updating both the number of tests run and the number of passes
 run_test () 
     { # run_test()
+
+    if [ $ECHO -eq 1 ]
+    then
+        echo $1 $2 $3
+    fi
+
     # capture returned message
     message=$($1 $2 $3) 
     # run again (pipe to null so it doesn't display to user) for the output code
@@ -217,7 +232,7 @@ do
     echo "Bad Output (no write permissions)"
     filename="good"
     full_path=$path$filename$file_ext
-    run_test ./$testExecutable $full_path "tests/data/bad.out" 8 "ERROR: Bad Output(tests/data/bad.out)"
+    run_test ./$testExecutable $full_path "tests/data/bad.out" 7 "ERROR: Bad Output(tests/data/bad.out)"
 
     echo "ALTERNATIVE - Bad File Name"
     run_test ./$testExecutable $full_path "tests/data/bad.out" 2 "ERROR: Bad File Name (tests/data/bad.out)"

@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #define SUCCESS 0
 #define BAD_ARGS 1
@@ -12,6 +13,8 @@
 #define MAGIC_NUMBER 0x6265
 #define MAX_DIMENSION 262144
 #define MIN_DIMENSION 1
+#define MAX_DATA 31
+#define MIN_DATA 0
 
 int main(int argc, char **argv)
     { // main
@@ -36,18 +39,22 @@ int main(int argc, char **argv)
     int width = 0, height = 0;
     unsigned int *imageData;
     long numBytes;
+    char *inputFilename = argv[1];
+    char *outputFilename = argv[2];
 
     // open the input file in read mode
-    FILE *inputFile = fopen(argv[1], "r");
+    FILE *inputFile = fopen(inputFilename, "r");
     // check file opened successfully
 
-
-    
-    if (!inputFile)
-        { // check file pointer
+    if (access(inputFilename,F_OK) == -1){
         printf("ERROR: Bad File Name (1)\n");
         return BAD_FILE;
-        } // check file pointer
+    }
+    if (access(inputFilename,R_OK) == -1){
+        printf("ERROR: Bad File Name (%s)\n",inputFilename);
+        return BAD_FILE;
+    }
+
 
     // get first 2 characters which should be magic number
     magicNumber[0] = getc(inputFile);
@@ -57,7 +64,7 @@ int main(int argc, char **argv)
     // checking against the casted value due to endienness.
     if (*magicNumberValue != MAGIC_NUMBER)
         { // check magic number
-        printf("ERROR: Bad Magic Number (%s)\n", argv[1]);
+        printf("ERROR: Bad Magic Number (%s)\n", inputFilename);
         return BAD_MAGIC_NUMBER;
         } //check magic number
 
@@ -69,13 +76,14 @@ int main(int argc, char **argv)
         // close the file as soon as an error is found
         fclose(inputFile);
         // print appropriate error message and return
-        printf("ERROR: Bad Dimensions (%s)\n", argv[1]);
+        printf("ERROR: Bad Dimensions (%s)\n", inputFilename);
         return BAD_DIM;
         } // check dimensions
 
     // caclulate total size and allocate memory for array
     numBytes = height * width;
     imageData = (unsigned int *)malloc(numBytes * sizeof(unsigned int));
+
 
     // if malloc is unsuccessful, it will return a null pointer
     if (imageData == NULL)
@@ -89,29 +97,41 @@ int main(int argc, char **argv)
     for (int current = 0; current < numBytes; current++)
         { // reading in
         check = fscanf(inputFile, "%u", &imageData[current]);
-        // validate that we have captured 1 pixel value
-        if (check != 1)
+        // validate that we have captured 1 pixel value and the value falls within the CORRECT range
+        if (check !=1 || imageData[current] > MAX_DATA || imageData[current] < MIN_DATA)
             { // check inputted data
             // ensure that allocated data is freed before exit.
             free(imageData);
             fclose(inputFile);
-            printf("ERROR: Bad Data\n");
+            printf("ERROR: Bad Data (%s)\n", inputFilename);
             return BAD_DATA;
             } // check inputted data
         } // reading in
+        unsigned int tmp; // checking too much
+        check = fscanf(inputFile, "%u", &tmp);
+        if (check != 0 && check != -1){
+            free(imageData);
+            fclose(inputFile);
+            printf("ERROR: Bad Data (%s)\n", inputFilename);
+            return BAD_DATA;
+        }
+
 
     // now we have finished using the inputFile we should close it
     fclose(inputFile);
 
     // open the output file in write mode
-    FILE *outputFile = fopen(argv[2], "w");
+    FILE *outputFile = fopen(outputFilename, "w");
     // validate that the file has been opened correctly
-    if (outputFile == NULL)
-        { // validate output file
+    
+    if (access(outputFilename,W_OK) == -1){
+        printf("ERROR: Bad Output(%s)\n",outputFilename);
         free(imageData);
-        printf("ERROR: Bad File Name (2)\n");
-        return BAD_FILE;
-        } // validate output file
+        return BAD_OUTPUT;
+    }
+
+
+
 
     // write the header data in one block
     check = fprintf(outputFile, "eb\n%d %d\n", height, width);
