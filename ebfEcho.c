@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include "commonFunc.h"
 
 #define SUCCESS 0
 #define BAD_ARGS 1
@@ -16,24 +17,22 @@
 #define MAX_DATA 31
 #define MIN_DATA 0
 
+
 int main(int argc, char **argv)
     { // main
-
-    // validate that user has enter 2 arguments (plus the executable name)
-    if (argc != 3)
-        { // check arg count
-            if(argc == 1){
-                printf("Usage: ebfEcho file1 file2\n");
-                return SUCCESS;
-            }
-        printf("ERROR: Bad Arguments\n");
-        return BAD_ARGS;
-        } // check arg count
+    switch(checkargs(argc)){
+        case 0:
+            printf("Usage: ebfEcho file1 file2\n");
+            return SUCCESS;
+        case 1:
+            return BAD_ARGS;
+        default:
+            break;
+    }
 
     // create a char array to hold magic number
-    // and cast to short
+    // and cast to short (later in code)
     unsigned char magicNumber[2];
-    
 
     // create and initialise variables used within code
     int width = 0, height = 0;
@@ -44,17 +43,17 @@ int main(int argc, char **argv)
 
     // open the input file in read mode
     FILE *inputFile = fopen(inputFilename, "r");
+
     // check file opened successfully
-
-    if (access(inputFilename,F_OK) == -1){
-        printf("ERROR: Bad File Name (1)\n");
-        return BAD_FILE;
+    switch(checkReadFileAccess(inputFilename)){
+        case 0:
+            printf("ERROR: Bad File Name (1)\n");
+            return BAD_FILE;
+        case 1:
+            return BAD_FILE;
+        default:
+            break;
     }
-    if (access(inputFilename,R_OK) == -1){
-        printf("ERROR: Bad File Name (%s)\n",inputFilename);
-        return BAD_FILE;
-    }
-
 
     // get first 2 characters which should be magic number
     magicNumber[0] = getc(inputFile);
@@ -62,23 +61,24 @@ int main(int argc, char **argv)
     unsigned short *magicNumberValue = (unsigned short *)magicNumber;
 
     // checking against the casted value due to endienness.
-    if (*magicNumberValue != MAGIC_NUMBER)
-        { // check magic number
-        printf("ERROR: Bad Magic Number (%s)\n", inputFilename);
-        return BAD_MAGIC_NUMBER;
-        } //check magic number
+    switch(checkMagicNumber(magicNumberValue, inputFilename)){
+        case 0:
+            return BAD_MAGIC_NUMBER;
+        default:
+            break;
+    }
 
     // scan for the dimensions
     // and capture fscanfs return to ensure we got 2 values.
     int check = fscanf(inputFile, "%d %d", &height, &width);
-    if (check != 2 || height < MIN_DIMENSION || width < MIN_DIMENSION || height > MAX_DIMENSION || width > MAX_DIMENSION)
-        { // check dimensions
-        // close the file as soon as an error is found
-        fclose(inputFile);
-        // print appropriate error message and return
-        printf("ERROR: Bad Dimensions (%s)\n", inputFilename);
-        return BAD_DIM;
-        } // check dimensions
+
+    switch(dimensionScan(check,height,width,inputFilename)){
+        case 0:
+            fclose(inputFile);
+            return BAD_DIM;
+        default:
+            break;            
+    }
 
     // caclulate total size and allocate memory for array
     numBytes = height * width;
@@ -93,28 +93,18 @@ int main(int argc, char **argv)
         return BAD_MALLOC;
         } // check malloc
 
-    // read in each grey value from the file
-    for (int current = 0; current < numBytes; current++)
-        { // reading in
-        check = fscanf(inputFile, "%u", &imageData[current]);
-        // validate that we have captured 1 pixel value and the value falls within the CORRECT range
-        if (check !=1 || imageData[current] > MAX_DATA || imageData[current] < MIN_DATA)
-            { // check inputted data
-            // ensure that allocated data is freed before exit.
+    switch(checkData(inputFile,numBytes,imageData, inputFilename)){
+        case 0:
             free(imageData);
             fclose(inputFile);
-            printf("ERROR: Bad Data (%s)\n", inputFilename);
             return BAD_DATA;
-            } // check inputted data
-        } // reading in
-        unsigned int tmp; // checking too much
-        check = fscanf(inputFile, "%u", &tmp);
-        if (check != 0 && check != -1){
+        case 1:
             free(imageData);
             fclose(inputFile);
-            printf("ERROR: Bad Data (%s)\n", inputFilename);
             return BAD_DATA;
-        }
+        default:
+            break;
+    }
 
 
     // now we have finished using the inputFile we should close it
@@ -129,8 +119,6 @@ int main(int argc, char **argv)
         free(imageData);
         return BAD_OUTPUT;
     }
-
-
 
 
     // write the header data in one block
