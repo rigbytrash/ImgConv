@@ -56,23 +56,23 @@ int dimensionScan(int check, int height, int width, char *inputFilename){
     return 1;
 }
 
-int checkData(FILE *inputFile, int numBytes, unsigned int *imageData, char *inputFilename){
-    for (int current = 0; current < numBytes; current++)
-        { // reading in
-        int check2 = fscanf(inputFile, "%u", &imageData[current]);
-        // validate that we have captured 1 pixel value and the value falls within the CORRECT range
-        if (check2 !=1 || imageData[current] > MAX_DATA || imageData[current] < MIN_DATA)
+int checkData(FILE *inputFile, int numBytes, unsigned int **imageData, char *inputFilename, int rows, int cols){
+    for (int currentRow = 0; currentRow < rows; currentRow++){
+        for (int currentCol = 0; currentCol < cols; currentCol++){
+        
+        int check2 = fscanf(inputFile, "%u", &imageData[currentRow][currentCol]);
+        if (check2 !=1 || imageData[currentRow][currentCol] > MAX_DATA || imageData[currentRow][currentCol] < MIN_DATA)
             { // check inputted data
-            // ensure that allocated data is freed before exit.
             printf("ERROR: Bad Data (%s)\n", inputFilename);
             return 0;
-            } // check inputted data
-        } // reading in
-        unsigned int tmp; // checking too much
+            }
+        }
+    }
+    unsigned int tmp; // checking too much
         int check2 = fscanf(inputFile, "%u", &tmp);
         if (check2 != 0 && check2 != -1){
             printf("ERROR: Bad Data (%s)\n", inputFilename);
             return 1;
         }
-        return 2;
+    return 2;
 }

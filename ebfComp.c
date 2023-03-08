@@ -34,10 +34,9 @@ int main(int argc, char **argv)
 
     // create and initialise variables used within code
     int width1 = 0, height1 = 0;
-    unsigned int *imageData1;
-    long numBytes1;
+    unsigned int **imageData1 = NULL;
+    long long numBytes1;
     char *inputFilename1 = argv[1];
-    // char *inputFilename2 = argv[2];
 
     // open the input file in read mode
     FILE *inputFile1 = fopen(argv[1], "r");
@@ -79,8 +78,13 @@ int main(int argc, char **argv)
     }
 
     // caclulate total size and allocate memory for array
-    numBytes1 = height1 * width1;
-    imageData1 = (unsigned int *)malloc(numBytes1 * sizeof(unsigned int));
+    numBytes1 = (long long) height1 * width1;
+        if (numBytes1 <= MAX_DIMENSION && numBytes1 > MIN_DIMENSION){
+        imageData1 = (unsigned int **)malloc(numBytes1 * sizeof(unsigned int*));
+        for (int i = 0; i < height1; i = i + 1){
+            imageData1[i] = (unsigned int*)malloc(numBytes1 * sizeof(unsigned int));
+        }
+    }
 
     // if malloc is unsuccessful, it will return a null pointer
     if (imageData1 == NULL)
@@ -90,7 +94,7 @@ int main(int argc, char **argv)
         return BAD_MALLOC;
         } // check malloc
 
-    switch(checkData(inputFile1,numBytes1,imageData1,inputFilename1)){
+    switch(checkData(inputFile1,numBytes1,imageData1,inputFilename1,height1,width1)){
         case 0:
             free(imageData1);
             fclose(inputFile1);
@@ -112,8 +116,8 @@ int main(int argc, char **argv)
 
     // create and initialise variables used within code
     int width2 = 0, height2 = 0;
-    unsigned int *imageData2;
-    long numBytes2;
+    unsigned int **imageData2 = NULL;
+    long long numBytes2;
     char *inputFilename2 = argv[2];
 
     // open the input file in read mode
@@ -158,8 +162,13 @@ int main(int argc, char **argv)
     }
 
     // caclulate total size and allocate memory for array
-    numBytes2 = height2 * width2;
-    imageData2 = (unsigned int *)malloc(numBytes2 * sizeof(unsigned int));
+    numBytes2 = (long long) height2 * width2;
+        if (numBytes2 <= MAX_DIMENSION && numBytes2 > MIN_DIMENSION){
+        imageData2 = (unsigned int **)malloc(numBytes2 * sizeof(unsigned int*));
+        for (int i = 0; i < height2; i = i + 1){
+            imageData2[i] = (unsigned int*)malloc(numBytes2 * sizeof(unsigned int));
+        }
+    }
 
     // if malloc is unsuccessful, it will return a null pointer
     if (imageData2 == NULL)
@@ -169,7 +178,7 @@ int main(int argc, char **argv)
         return BAD_MALLOC;
         } // check malloc
 
-    switch(checkData(inputFile2,numBytes2,imageData2,inputFilename2)){
+    switch(checkData(inputFile2,numBytes2,imageData2,inputFilename2,height2,width2)){
         case 0:
             free(imageData2);
             fclose(inputFile2);
@@ -206,18 +215,17 @@ int main(int argc, char **argv)
         } // free and exit
 
     // and check the pixel values
-    for (int n=0; n<numBytes1; n++)
-        {
-        if(imageData1[n]!=imageData2[n])
-            { // free and exit
-            free(imageData1);
-            free(imageData2);
-            printf("DIFFERENT\n");
-            return SUCCESS;
-            } // free and exit
+     for (int currentRow = 0; currentRow < height1; currentRow++){
+        for (int currentCol = 0; currentCol < width1; currentCol++){
+            if (imageData1[currentRow][currentCol] != imageData2[currentRow][currentCol]){
+                // free and exit
+                free(imageData1);
+                free(imageData2);
+                printf("DIFFERENT\n");
+                return SUCCESS;
+            }
         }
-
-
+     }
     // free allocated memory before exit
     free(imageData1);
     free(imageData2);

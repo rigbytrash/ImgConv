@@ -36,8 +36,8 @@ int main(int argc, char **argv)
 
     // create and initialise variables used within code
     int width = 0, height = 0;
-    unsigned int *imageData;
-    long numBytes;
+    unsigned int ** imageData = NULL;
+    long long numBytes;
     char *inputFilename = argv[1];
     char *outputFilename = argv[2];
 
@@ -81,8 +81,14 @@ int main(int argc, char **argv)
     }
 
     // caclulate total size and allocate memory for array
-    numBytes = height * width;
-    imageData = (unsigned int *)malloc(numBytes * sizeof(unsigned int));
+    numBytes = (long long) height * width;
+        if (numBytes <= MAX_DIMENSION && numBytes > MIN_DIMENSION){
+        imageData = (unsigned int **)malloc(numBytes * sizeof(unsigned int*));
+        for (int i = 0; i < height; i = i + 1){
+            imageData[i] = (unsigned int*)malloc(numBytes * sizeof(unsigned int));
+        }
+    }
+
 
 
     // if malloc is unsuccessful, it will return a null pointer
@@ -93,7 +99,7 @@ int main(int argc, char **argv)
         return BAD_MALLOC;
         } // check malloc
 
-    switch(checkData(inputFile,numBytes,imageData, inputFilename)){
+    switch(checkData(inputFile,numBytes,imageData, inputFilename, height, width)){
         case 0:
             free(imageData);
             fclose(inputFile);
@@ -133,18 +139,24 @@ int main(int argc, char **argv)
         } // check write
 
     // iterate though the array and print out pixel values
-    for (int current = 0; current < numBytes; current++)
-        { // writing out
-        // if we are at the end of a row ((current+1)%width == 0) then write a newline, otherwise a space.
-        check = fprintf(inputFile, "%u%c", imageData[current], ((current + 1) % width) ? ' ' : '\n');
-        if (check == 0)
+    for (int currentRow = 0; currentRow < height; currentRow++){
+        for (int currentCol = 0; currentCol < width; currentCol++){
+            if (currentRow == height -1 && currentCol == currentCol - 1){
+                check = fprintf(inputFile, "%u", imageData[currentRow][currentCol]);
+            }
+            else{
+                check = fprintf(inputFile, "%u%c", imageData[currentRow][currentCol], (currentCol != width - 1) ? ' ' : '\n');
+            }
+
+            if (check == 0)
             { // check write
-            fclose(outputFile);
-            free(imageData);
-            printf("ERROR: Bad Output\n");
-            return BAD_OUTPUT;
-            } // check write
-        } // writing out
+                fclose(outputFile);
+                free(imageData);
+                printf("ERROR: Bad Output\n");
+                return BAD_OUTPUT;
+            }
+        }
+    }    
 
     // free allocated memory before exit
     free(imageData);
