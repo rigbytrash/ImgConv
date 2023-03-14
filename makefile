@@ -9,7 +9,7 @@ CC     = gcc
 # -g enables the use of GDB
 CFLAGS = -std=c99 -Wall -Werror -g
 # this is your list of executables which you want to compile with all
-EXE    = ebfEcho ebfComp
+EXE    = ebfEcho ebfComp ebuEcho ebuComp ebu2ebf ebf2ebu
 
 # we put 'all' as the first command as this will be run if you just enter 'make'
 all: ${EXE}
@@ -37,4 +37,16 @@ ebfEcho: ebfEcho.o
 	$(CC) $(CCFLAGS) $^ -o $@
 
 ebfComp: ebfComp.o
+	$(CC) $(CCFLAGS) $^ -o $@
+
+ebuEcho: ebuEcho.o
+	$(CC) $(CCFLAGS) $^ -o $@
+
+ebuComp: ebuComp.o
+	$(CC) $(CCFLAGS) $^ -o $@
+
+ebu2ebf: ebu2ebf.o
+	$(CC) $(CCFLAGS) $^ -o $@
+
+ebf2ebu: ebf2ebu.o
 	$(CC) $(CCFLAGS) $^ -o $@

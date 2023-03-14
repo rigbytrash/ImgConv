@@ -103,7 +103,7 @@ run_test ()
 
 # you can remove or comment out any executables you don't want to test
 # full list of executables: ebf2ebu ebuEcho ebuComp ebu2ebf
-EXES=(ebfEcho ebfComp)
+EXES=(ebfEcho ebfComp ebuEcho ebuComp ebu2ebf ebf2ebu)
 
 # run all of the tests below for all executables given in 'EXES'
 # inside this loop, the executable being run can be referred to by 'testExecutable'

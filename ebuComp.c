@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "ebfCommonFunc.h"
+#include "ebuCommonFunc.h"
 
 #define SUCCESS 0
 #define BAD_ARGS 1
@@ -10,9 +10,11 @@
 #define BAD_MALLOC 5
 #define BAD_DATA 6
 #define BAD_OUTPUT 7
-#define MAGIC_NUMBER 0x6265
+#define MAGIC_NUMBER 0x7565
 #define MAX_DIMENSION 262144
 #define MIN_DIMENSION 1
+#define MAX_DATA 31
+#define MIN_DATA 0
 
 int main(int argc, char **argv)
     { // main
@@ -20,7 +22,7 @@ int main(int argc, char **argv)
     // validate that user has enter 2 arguments (plus the executable name)
     switch(checkargs(argc)){
         case 0:
-            printf("Usage: ebfComp file1 file2\n");
+            printf("Usage: ebuComp file1 file2\n");
             return SUCCESS;
         case 1:
             return BAD_ARGS;
@@ -34,12 +36,12 @@ int main(int argc, char **argv)
 
     // create and initialise variables used within code
     int width1 = 0, height1 = 0;
-    unsigned int **imageData1 = NULL;
+    unsigned char **imageData1 = NULL;
     long long numBytes1;
     char *inputFilename1 = argv[1];
 
     // open the input file in read mode
-    FILE *inputFile1 = fopen(argv[1], "r");
+    FILE *inputFile1 = fopen(argv[1], "rb");
 
     // check file opened successfully
     switch(checkReadFileAccess(inputFilename1)){
@@ -80,9 +82,9 @@ int main(int argc, char **argv)
     // caclulate total size and allocate memory for array
     numBytes1 = (long long) height1 * width1;
         if (numBytes1 <= MAX_DIMENSION && numBytes1 > MIN_DIMENSION){
-        imageData1 = (unsigned int **)malloc(numBytes1 * sizeof(unsigned int*));
+        imageData1 = (unsigned char **)malloc(numBytes1 * sizeof(unsigned char*));
         for (int i = 0; i < height1; i = i + 1){
-            imageData1[i] = (unsigned int*)malloc(numBytes1 * sizeof(unsigned int));
+            imageData1[i] = (unsigned char*)malloc(numBytes1 * sizeof(unsigned char));
         }
     }
 
@@ -116,7 +118,7 @@ int main(int argc, char **argv)
 
     // create and initialise variables used within code
     int width2 = 0, height2 = 0;
-    unsigned int **imageData2 = NULL;
+    unsigned char **imageData2 = NULL;
     long long numBytes2;
     char *inputFilename2 = argv[2];
 
@@ -164,9 +166,9 @@ int main(int argc, char **argv)
     // caclulate total size and allocate memory for array
     numBytes2 = (long long) height2 * width2;
         if (numBytes2 <= MAX_DIMENSION && numBytes2 > MIN_DIMENSION){
-        imageData2 = (unsigned int **)malloc(numBytes2 * sizeof(unsigned int*));
+        imageData2 = (unsigned char **)malloc(numBytes2 * sizeof(unsigned char*));
         for (int i = 0; i < height2; i = i + 1){
-            imageData2[i] = (unsigned int*)malloc(numBytes2 * sizeof(unsigned int));
+            imageData2[i] = (unsigned char*)malloc(numBytes2 * sizeof(unsigned char));
         }
     }
 

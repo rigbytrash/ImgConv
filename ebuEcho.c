@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include "ebfCommonFunc.h"
+#include "ebuCommonFunc.h"
 
 #define SUCCESS 0
 #define BAD_ARGS 1
@@ -11,7 +11,7 @@
 #define BAD_MALLOC 5
 #define BAD_DATA 6
 #define BAD_OUTPUT 7
-#define MAGIC_NUMBER 0x6265
+#define MAGIC_NUMBER 0x7565
 #define MAX_DIMENSION 262144
 #define MIN_DIMENSION 1
 #define MAX_DATA 31
@@ -22,7 +22,7 @@ int main(int argc, char **argv)
     { // main
     switch(checkargs(argc)){
         case 0:
-            printf("Usage: ebfEcho file1 file2\n");
+            printf("Usage: ebuEcho file1 file2\n");
             return SUCCESS;
         case 1:
             return BAD_ARGS;
@@ -36,13 +36,13 @@ int main(int argc, char **argv)
 
     // create and initialise variables used within code
     int width = 0, height = 0;
-    unsigned int ** imageData = NULL;
+    unsigned char ** imageData = NULL;
     long long numBytes;
     char *inputFilename = argv[1];
     char *outputFilename = argv[2];
 
     // open the input file in read mode
-    FILE *inputFile = fopen(inputFilename, "r");
+    FILE *inputFile = fopen(inputFilename, "rb");
 
     // check file opened successfully
     switch(checkReadFileAccess(inputFilename)){
@@ -83,9 +83,9 @@ int main(int argc, char **argv)
     // caclulate total size and allocate memory for array
     numBytes = (long long) height * width;
         if (numBytes <= MAX_DIMENSION && numBytes > MIN_DIMENSION){
-        imageData = (unsigned int **)malloc(numBytes * sizeof(unsigned int*));
+        imageData = (unsigned char **)malloc(numBytes * sizeof(unsigned char*));
         for (int i = 0; i < height; i = i + 1){
-            imageData[i] = (unsigned int*)malloc(numBytes * sizeof(unsigned int));
+            imageData[i] = (unsigned char*)malloc(numBytes * sizeof(unsigned char));
         }
     }
 
@@ -117,7 +117,7 @@ int main(int argc, char **argv)
     fclose(inputFile);
 
     // open the output file in write mode
-    FILE *outputFile = fopen(outputFilename, "w");
+    FILE *outputFile = fopen(outputFilename, "wb");
     // validate that the file has been opened correctly
     
     if (access(outputFilename,W_OK) == -1){
@@ -128,7 +128,7 @@ int main(int argc, char **argv)
 
 
     // write the header data in one block
-    check = fprintf(outputFile, "eb\n%d %d\n", height, width);
+    check = fprintf(outputFile, "eu\n%d %d\n", height, width);
     // and use the return from fprintf to check that we wrote.
     if (check == 0) 
         { // check write
@@ -141,13 +141,7 @@ int main(int argc, char **argv)
     // iterate though the array and print out pixel values
     for (int currentRow = 0; currentRow < height; currentRow++){
         for (int currentCol = 0; currentCol < width; currentCol++){
-            if (currentRow == height -1 && currentCol == currentCol - 1){
-                check = fprintf(inputFile, "%u", imageData[currentRow][currentCol]);
-            }
-            else{
-                check = fprintf(inputFile, "%u%c", imageData[currentRow][currentCol], (currentCol != width - 1) ? ' ' : '\n');
-            }
-
+            check = fwrite(&imageData[currentRow][currentCol],sizeof(unsigned char),1,outputFile); 
             if (check == 0)
             { // check write
                 fclose(outputFile);
@@ -157,6 +151,7 @@ int main(int argc, char **argv)
             }
         }
     }    
+    
 
     // free allocated memory before exit
     free(imageData);

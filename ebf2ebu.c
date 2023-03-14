@@ -22,7 +22,7 @@ int main(int argc, char **argv)
     { // main
     switch(checkargs(argc)){
         case 0:
-            printf("Usage: ebfEcho file1 file2\n");
+            printf("Usage: ebf2ebu file1 file2\n");
             return SUCCESS;
         case 1:
             return BAD_ARGS;
@@ -128,7 +128,7 @@ int main(int argc, char **argv)
 
 
     // write the header data in one block
-    check = fprintf(outputFile, "eb\n%d %d\n", height, width);
+    check = fprintf(outputFile, "eu\n%d %d\n", height, width);
     // and use the return from fprintf to check that we wrote.
     if (check == 0) 
         { // check write
@@ -141,13 +141,7 @@ int main(int argc, char **argv)
     // iterate though the array and print out pixel values
     for (int currentRow = 0; currentRow < height; currentRow++){
         for (int currentCol = 0; currentCol < width; currentCol++){
-            if (currentRow == height -1 && currentCol == currentCol - 1){
-                check = fprintf(inputFile, "%u", imageData[currentRow][currentCol]);
-            }
-            else{
-                check = fprintf(inputFile, "%u%c", imageData[currentRow][currentCol], (currentCol != width - 1) ? ' ' : '\n');
-            }
-
+            check = fwrite(&imageData[currentRow][currentCol],sizeof(unsigned char),1,outputFile); 
             if (check == 0)
             { // check write
                 fclose(outputFile);
@@ -164,6 +158,6 @@ int main(int argc, char **argv)
     fclose(outputFile);
 
     // print final success message and return
-    printf("ECHOED\n");
+    printf("CONVERTED\n");
     return SUCCESS;
     } // main()
