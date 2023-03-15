@@ -1,7 +1,8 @@
+#include "allCommonFunc.h"
+#include "ebuCommonFunc.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include "ebuCommonFunc.h"
 
 #define SUCCESS 0
 #define BAD_ARGS 1
@@ -61,7 +62,7 @@ int main(int argc, char **argv)
     unsigned short *magicNumberValue = (unsigned short *)magicNumber;
 
     // checking against the casted value due to endienness.
-    switch(checkMagicNumber(magicNumberValue, inputFilename)){
+    switch(checkMagicNumber(magicNumberValue, inputFilename, MAGIC_NUMBER)){
         case 0:
             return BAD_MAGIC_NUMBER;
         default:
@@ -72,7 +73,7 @@ int main(int argc, char **argv)
     // and capture fscanfs return to ensure we got 2 values.
     int check = fscanf(inputFile, "%d %d", &height, &width);
 
-    switch(dimensionScan(check,height,width,inputFilename)){
+    switch(dimensionScan(check,height,width,inputFilename, MIN_DIMENSION, MAX_DIMENSION)){
         case 0:
             fclose(inputFile);
             return BAD_DIM;

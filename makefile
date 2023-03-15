@@ -9,8 +9,8 @@ CC     = gcc
 # -g enables the use of GDB
 CFLAGS = -std=c99 -Wall -Werror -g
 # this is your list of executables which you want to compile with all
-EXE    = ebfEcho ebfComp ebuEcho ebuComp ebu2ebf ebf2ebu
-
+EXE    = ebfEcho ebfComp ebuEcho ebuComp ebu2ebf ebf2ebu ebcEcho
+dependencies = ebfCommonFunc.h ebfCommonFunc.h allCommonFunc.h ebcCommonFunc.h
 # we put 'all' as the first command as this will be run if you just enter 'make'
 all: ${EXE}
 
@@ -25,7 +25,7 @@ clean:
 # ebfEcho.o: ebfEcho.c
 # gcc -c -std=c99 -g ebfEcho.c -o ebfEcho.o
 
-%.o: %.c
+%.o: %.c $(dependencies)
 	$(CC) -c $(CFLAGS) $< -o $@
 
 # for each executable, you need to tell the makefile the 'recipe' for your file
@@ -33,20 +33,26 @@ clean:
 # but as you refactor and add more .c and .h files
 # these recipes will become more complex.
 
-ebfEcho: ebfEcho.o
+ebfEcho: ebfEcho.o ebfCommonFunc.o allCommonFunc.o
 	$(CC) $(CCFLAGS) $^ -o $@
 
-ebfComp: ebfComp.o
+ebfComp: ebfComp.o ebfCommonFunc.o allCommonFunc.o
 	$(CC) $(CCFLAGS) $^ -o $@
 
-ebuEcho: ebuEcho.o
+ebuEcho: ebuEcho.o ebuCommonFunc.o allCommonFunc.o
 	$(CC) $(CCFLAGS) $^ -o $@
 
-ebuComp: ebuComp.o
+ebuComp: ebuComp.o ebuCommonFunc.o allCommonFunc.o
 	$(CC) $(CCFLAGS) $^ -o $@
 
-ebu2ebf: ebu2ebf.o
+ebu2ebf: ebu2ebf.o ebuCommonFunc.o allCommonFunc.o
 	$(CC) $(CCFLAGS) $^ -o $@
 
-ebf2ebu: ebf2ebu.o
+ebf2ebu: ebf2ebu.o ebfCommonFunc.o allCommonFunc.o
+	$(CC) $(CCFLAGS) $^ -o $@
+
+ebcEcho: ebcEcho.o ebcCommonFunc.o allCommonFunc.o
+	$(CC) $(CCFLAGS) $^ -o $@	
+
+ebfCommonFunc: ebfCommonFunc.o allCommonFunc.o
 	$(CC) $(CCFLAGS) $^ -o $@

@@ -1,6 +1,7 @@
+#include "allCommonFunc.h"
+#include "ebuCommonFunc.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "ebuCommonFunc.h"
 
 #define SUCCESS 0
 #define BAD_ARGS 1
@@ -60,7 +61,7 @@ int main(int argc, char **argv)
     unsigned short *magicNumberValue1 = (unsigned short *)magicNumber1;
 
     // checking against the casted value due to endienness.
-    switch(checkMagicNumber(magicNumberValue1, inputFilename1)){
+    switch(checkMagicNumber(magicNumberValue1, inputFilename1, MAGIC_NUMBER)){
         case 0:
             return BAD_MAGIC_NUMBER;
         default:
@@ -71,7 +72,7 @@ int main(int argc, char **argv)
     // and capture fscanfs return to ensure we got 2 values.
     int check = fscanf(inputFile1, "%d %d", &height1, &width1);
     
-    switch(dimensionScan(check,height1,width1,inputFilename1)){
+    switch(dimensionScan(check,height1,width1,inputFilename1, MIN_DIMENSION, MAX_DIMENSION)){
         case 0:
             fclose(inputFile1);
             return BAD_DIM;
@@ -144,7 +145,7 @@ int main(int argc, char **argv)
     unsigned short *magicNumberValue2 = (unsigned short *)magicNumber2;
 
     // checking against the casted value due to endienness.
-    switch(checkMagicNumber(magicNumberValue2,inputFilename2)){
+    switch(checkMagicNumber(magicNumberValue2, inputFilename2, MAGIC_NUMBER)){
         case 0:
             return BAD_MAGIC_NUMBER;
         default:
@@ -155,7 +156,7 @@ int main(int argc, char **argv)
     // and capture fscanfs return to ensure we got 2 values.
     check = fscanf(inputFile2, "%d %d", &height2, &width2);
     
-    switch(dimensionScan(check,height2,width2,inputFilename2)){
+    switch(dimensionScan(check,height2,width2,inputFilename2, MIN_DIMENSION, MAX_DIMENSION)){
         case 0:
             fclose(inputFile2);
             return BAD_DIM;
