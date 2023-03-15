@@ -1,4 +1,5 @@
 #include "ebuCommonFunc.h"
+#include "allCommonFunc.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -17,13 +18,29 @@
 #define MAX_DATA 31
 #define MIN_DATA 0
 
+int checkMagicNumber(unsigned short *magicNumberValue, char *inputFilename){
+    if (*magicNumberValue != MAGIC_NUMBER){
+            printf("ERROR: Bad Magic Number (%s)\n", inputFilename);
+        return 0;
+    }
+    return 1;
+}
 
-int checkData(FILE *inputFile, int numBytes, unsigned char **imageData, char *inputFilename, int rows, int cols){
-    fread(&imageData[0][0], sizeof(unsigned char), 1, inputFile); // skips a line
-    for (int currentRow = 0; currentRow < rows; currentRow++){
-        for (int currentCol = 0; currentCol < cols; currentCol++){
-            int check2 = fread(&imageData[currentRow][currentCol], sizeof(unsigned char), 1, inputFile);
-            if (check2 !=1 || imageData[currentRow][currentCol] > MAX_DATA || imageData[currentRow][currentCol] < MIN_DATA)
+int dimensionScan(int check, ebuImage *img, char *inputFilename){
+    if (check != 2 || img->height < MIN_DIMENSION || img->width < MIN_DIMENSION || img->height > MAX_DIMENSION || img->width > MAX_DIMENSION)
+    { 
+        printf("ERROR: Bad Dimensions (%s)\n", inputFilename);
+        return 0;
+    }
+    return 1;
+}
+
+int checkData(FILE *inputFile, ebuImage *img, char *inputFilename){
+    fread(&img->imageData[0][0], sizeof(unsigned char), 1, inputFile); // skips a line
+    for (int currentRow = 0; currentRow < img->height; currentRow++){
+        for (int currentCol = 0; currentCol < img->width; currentCol++){
+            int check2 = fread(&img->imageData[currentRow][currentCol], sizeof(unsigned char), 1, inputFile);
+            if (check2 !=1 || img->imageData[currentRow][currentCol] > MAX_DATA || img->imageData[currentRow][currentCol] < MIN_DATA)
                 { // check inputted data
                     printf("ERROR: Bad Data (%s)\n", inputFilename);
                     return 0;
@@ -38,4 +55,11 @@ int checkData(FILE *inputFile, int numBytes, unsigned char **imageData, char *in
             return 1;
         }
     return 2;
+}
+
+void mallocTheArray(ebuImage *img){
+    img->imageData = (unsigned char **)malloc((img->height*img->width) * sizeof(unsigned char*));
+    for (int i = 0; i < img->height; i = i + 1){
+        img->imageData[i] = (unsigned char*)malloc((img->height*img->width) * sizeof(unsigned char));
+    }
 }

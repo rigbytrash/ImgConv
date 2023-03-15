@@ -31,14 +31,10 @@ int main(int argc, char **argv)
             break;
     }
 
-    // create a char array to hold magic number
-    // and cast to short (later in code)
-    unsigned char magicNumber[2];
+    ebuImage *image = (ebuImage*)malloc(sizeof(ebuImage));
+
 
     // create and initialise variables used within code
-    int width = 0, height = 0;
-    unsigned char ** imageData = NULL;
-    long long numBytes;
     char *inputFilename = argv[1];
     char *outputFilename = argv[2];
 
@@ -57,12 +53,12 @@ int main(int argc, char **argv)
     }
 
     // get first 2 characters which should be magic number
-    magicNumber[0] = getc(inputFile);
-    magicNumber[1] = getc(inputFile);
-    unsigned short *magicNumberValue = (unsigned short *)magicNumber;
+    image->magicNumber[0] = getc(inputFile);
+    image->magicNumber[1] = getc(inputFile);
+    unsigned short *magicNumberValue = (unsigned short *)image->magicNumber;
 
     // checking against the casted value due to endienness.
-    switch(checkMagicNumber(magicNumberValue, inputFilename, MAGIC_NUMBER)){
+    switch(checkMagicNumber(magicNumberValue, inputFilename)){
         case 0:
             return BAD_MAGIC_NUMBER;
         default:
@@ -71,9 +67,9 @@ int main(int argc, char **argv)
 
     // scan for the dimensions
     // and capture fscanfs return to ensure we got 2 values.
-    int check = fscanf(inputFile, "%d %d", &height, &width);
+    int check = fscanf(inputFile, "%d %d", &image->height, &image->width);
 
-    switch(dimensionScan(check,height,width,inputFilename, MIN_DIMENSION, MAX_DIMENSION)){
+    switch(dimensionScan(check, image, inputFilename)){
         case 0:
             fclose(inputFile);
             return BAD_DIM;
@@ -82,31 +78,26 @@ int main(int argc, char **argv)
     }
 
     // caclulate total size and allocate memory for array
-    numBytes = (long long) height * width;
-        if (numBytes <= MAX_DIMENSION && numBytes > MIN_DIMENSION){
-        imageData = (unsigned char **)malloc(numBytes * sizeof(unsigned char*));
-        for (int i = 0; i < height; i = i + 1){
-            imageData[i] = (unsigned char*)malloc(numBytes * sizeof(unsigned char));
-        }
-    }
+    image->imageData = NULL;
+    mallocTheArray(image);
 
 
 
     // if malloc is unsuccessful, it will return a null pointer
-    if (imageData == NULL)
+    if (image->imageData == NULL)
         { // check malloc
         fclose(inputFile);
         printf("ERROR: Image Malloc Failed\n");
         return BAD_MALLOC;
         } // check malloc
 
-    switch(checkData(inputFile,numBytes,imageData, inputFilename, height, width)){
+    switch(checkData(inputFile, image, inputFilename)){
         case 0:
-            free(imageData);
+            free(image->imageData);
             fclose(inputFile);
             return BAD_DATA;
         case 1:
-            free(imageData);
+            free(image->imageData);
             fclose(inputFile);
             return BAD_DATA;
         default:
@@ -123,37 +114,37 @@ int main(int argc, char **argv)
     
     if (access(outputFilename,W_OK) == -1){
         printf("ERROR: Bad Output(%s)\n",outputFilename);
-        free(imageData);
+        free(image->imageData);
         return BAD_OUTPUT;
     }
 
 
     // write the header data in one block
-    check = fprintf(outputFile, "eb\n%d %d\n", height, width);
+    check = fprintf(outputFile, "eb\n%d %d\n", image->height, image->width);
     // and use the return from fprintf to check that we wrote.
     if (check == 0) 
         { // check write
         fclose(outputFile);
-        free(imageData);
+        free(image->imageData);
         printf("ERROR: Bad Output\n");
         return BAD_OUTPUT;
         } // check write
 
     // iterate though the array and print out pixel values
-    for (int currentRow = 0; currentRow < height; currentRow++){
-        for (int currentCol = 0; currentCol < width; currentCol++){
+    for (int currentRow = 0; currentRow < image->height; currentRow++){
+        for (int currentCol = 0; currentCol < image->width; currentCol++){
             // if (currentRow == height -1 && currentCol == currentCol - 1){
             //     check = fprintf(inputFile, "%u", imageData[currentRow][currentCol]);
             // }
             // else{
             //     check = fprintf(inputFile, "%u%c", imageData[currentRow][currentCol], (currentCol != width - 1) ? ' ' : '\n');
             // }
-            check = fprintf(inputFile, "%u%c", imageData[currentRow][currentCol], (currentCol != width - 1) ? ' ' : '\n');
+            check = fprintf(inputFile, "%u%c", image->imageData[currentRow][currentCol], (currentCol != image->width - 1) ? ' ' : '\n');
 
             if (check == 0)
             { // check write
                 fclose(outputFile);
-                free(imageData);
+                free(image->imageData);
                 printf("ERROR: Bad Output\n");
                 return BAD_OUTPUT;
             }
@@ -162,7 +153,7 @@ int main(int argc, char **argv)
     
 
     // free allocated memory before exit
-    free(imageData);
+    free(image->imageData);
     // close the output file before exit
     fclose(outputFile);
 

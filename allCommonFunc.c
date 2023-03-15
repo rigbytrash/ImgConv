@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+
 int checkargs(int argCount){
     if (argCount != 3)
         { // check arg count
@@ -24,21 +25,4 @@ int checkReadFileAccess(char *filename){
         return 1;
     }
     return 2;
-}
-
-int checkMagicNumber(unsigned short *magicNumberValue, char *inputFilename, int MAGIC_NUMBER){
-    if (*magicNumberValue != MAGIC_NUMBER){
-            printf("ERROR: Bad Magic Number (%s)\n", inputFilename);
-        return 0;
-    }
-    return 1;
-}
-
-int dimensionScan(int check, int height, int width, char *inputFilename, int MIN_DIMENSION, int MAX_DIMENSION){
-    if (check != 2 || height < MIN_DIMENSION || width < MIN_DIMENSION || height > MAX_DIMENSION || width > MAX_DIMENSION)
-    { 
-        printf("ERROR: Bad Dimensions (%s)\n", inputFilename);
-        return 0;
-    }
-    return 1;
 }
