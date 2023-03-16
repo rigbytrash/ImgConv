@@ -1,7 +1,8 @@
 #include "allCommonFunc.h"
-#include "ebcCommonFunc.h"
+#include "ebuCommonFunc.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <unistd.h>
 
 #define SUCCESS 0
@@ -12,7 +13,7 @@
 #define BAD_MALLOC 5
 #define BAD_DATA 6
 #define BAD_OUTPUT 7
-#define MAGIC_NUMBER 0x6365
+#define MAGIC_NUMBER 0x7565
 #define MAX_DIMENSION 262144
 #define MIN_DIMENSION 1
 #define MAX_DATA 31
@@ -31,14 +32,10 @@ int main(int argc, char **argv)
             break;
     }
 
-    // create a char array to hold magic number
-    // and cast to short (later in code)
-    unsigned char magicNumber[2];
+    ebuImage *image = (ebuImage*)malloc(sizeof(ebuImage));
+
 
     // create and initialise variables used within code
-    int width = 0, height = 0;
-    unsigned char ** imageData = NULL;
-    long long numBytes;
     char *inputFilename = argv[1];
     char *outputFilename = argv[2];
 
@@ -57,12 +54,12 @@ int main(int argc, char **argv)
     }
 
     // get first 2 characters which should be magic number
-    magicNumber[0] = getc(inputFile);
-    magicNumber[1] = getc(inputFile);
-    unsigned short *magicNumberValue = (unsigned short *)magicNumber;
+    image->magicNumber[0] = getc(inputFile);
+    image->magicNumber[1] = getc(inputFile);
+    unsigned short *magicNumberValue = (unsigned short *)image->magicNumber;
 
     // checking against the casted value due to endienness.
-    switch(checkMagicNumber(magicNumberValue, inputFilename, MAGIC_NUMBER)){
+    switch(checkMagicNumber(magicNumberValue, inputFilename)){
         case 0:
             return BAD_MAGIC_NUMBER;
         default:
@@ -71,9 +68,9 @@ int main(int argc, char **argv)
 
     // scan for the dimensions
     // and capture fscanfs return to ensure we got 2 values.
-    int check = fscanf(inputFile, "%d %d", &height, &width);
+    int check = fscanf(inputFile, "%d %d", &image->height, &image->width);
 
-    switch(dimensionScan(check,height,width,inputFilename, MIN_DIMENSION, MAX_DIMENSION)){
+    switch(dimensionScan(check, image, inputFilename)){
         case 0:
             fclose(inputFile);
             return BAD_DIM;
@@ -82,18 +79,8 @@ int main(int argc, char **argv)
     }
 
     // caclulate total size and allocate memory for array
-    numBytes = (long long) height * width;
-        if (numBytes <= MAX_DIMENSION && numBytes > MIN_DIMENSION){
-        imageData = (unsigned char **)malloc(numBytes * sizeof(unsigned char*));
-        for (int i = 0; i < height; i = i + 1){
-            imageData[i] = (unsigned char*)malloc(numBytes * sizeof(unsigned char));
-        }
-
-        compressedData = (unsigned char **)malloc(numBytes * sizeof(unsigned char*));
-        for (int i = 0; i < height; i = i + 1){
-            compressedData[i] = (unsigned char*)malloc(numBytes * sizeof(unsigned char));
-        }
-    }
+    image->imageData = NULL;
+    mallocTheArray(image);
 
 
 
@@ -105,13 +92,13 @@ int main(int argc, char **argv)
         return BAD_MALLOC;
         } // check malloc
 
-    switch(checkData(inputFile,numBytes,imageData, inputFilename, height, width)){
+    switch(checkData(inputFile, image, inputFilename)){
         case 0:
-            free(imageData);
+            free(image->imageData);
             fclose(inputFile);
             return BAD_DATA;
         case 1:
-            free(imageData);
+            free(image->imageData);
             fclose(inputFile);
             return BAD_DATA;
         default:
@@ -128,43 +115,63 @@ int main(int argc, char **argv)
     
     if (access(outputFilename,W_OK) == -1){
         printf("ERROR: Bad Output(%s)\n",outputFilename);
-        free(imageData);
+        free(image->imageData);
         return BAD_OUTPUT;
     }
 
 
     // write the header data in one block
-    check = fprintf(outputFile, "ec\n%d %d\n", height, width);
+    check = fprintf(outputFile, "ec\n%d %d\n", image->height, image->width);
     // and use the return from fprintf to check that we wrote.
     if (check == 0) 
         { // check write
         fclose(outputFile);
-        free(imageData);
+        free(image->imageData);
         printf("ERROR: Bad Output\n");
         return BAD_OUTPUT;
         } // check write
 
-    // iterate though the array and print out pixel values
-    for (int currentRow = 0; currentRow < height; currentRow++){
-        for (int currentCol = 0; currentCol < width; currentCol++){
-            check = fwrite(&imageData[currentRow][currentCol],sizeof(unsigned char),1,outputFile); 
-            if (check == 0)
-            { // check write
-                fclose(outputFile);
-                free(imageData);
-                printf("ERROR: Bad Output\n");
-                return BAD_OUTPUT;
+        int counter = 0;
+        unsigned char mask1 = (unsigned char) 0x80;
+        uint8_t toOutput;
+        uint8_t toSaveToOutput;
+        uint8_t current;
+
+        for (int currentRow = 0; currentRow < image->height; currentRow++){
+            for (int currentCol = 0; currentCol < image->width; currentCol++){
+                current = image->imageData[currentRow][currentCol]<< 3; //shifts the 3 zeros to the end
+
+                for (int i = 0; i < 5; i ++){
+                    toSaveToOutput = current & mask1; //applys the mask to only get the top bit
+                    toSaveToOutput = (toSaveToOutput >> counter);
+                    toOutput |= toSaveToOutput;
+                    counter = counter + 1;
+
+                    if (counter == 8){
+                        counter = 0;
+                        check = fwrite(&toOutput,sizeof(unsigned char),1,outputFile); 
+                        if (check == 0)
+                        { // check write
+                            fclose(outputFile);
+                            free(image->imageData);
+                            printf("ERROR: Bad Output\n");
+                            return BAD_OUTPUT;
+                        }
+                        toOutput = 0;
+                        // then wipe the toOutput
+                    }
+                    current <<= 1;
+                }
             }
         }
-    }    
     
 
     // free allocated memory before exit
-    free(imageData);
+    free(image->imageData);
     // close the output file before exit
     fclose(outputFile);
 
     // print final success message and return
-    printf("ECHOED\n");
+    printf("CONVERTED\n");
     return SUCCESS;
     } // main()
