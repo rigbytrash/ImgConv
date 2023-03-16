@@ -58,8 +58,16 @@ int checkData(FILE *inputFile, ebuImage *img, char *inputFilename){
 }
 
 void mallocTheArray(ebuImage *img){
-    img->imageData = (unsigned char **)malloc((img->height*img->width) * sizeof(unsigned char*));
+    img->imageData = (unsigned char **)malloc(img->height * sizeof(unsigned char*));
+    img->dataBlock = (unsigned char*)malloc(img->height*img->width*sizeof(unsigned char));
     for (int i = 0; i < img->height; i = i + 1){
-        img->imageData[i] = (unsigned char*)malloc((img->height*img->width) * sizeof(unsigned char));
+        img->imageData[i] = img->dataBlock + i * img->width;
     }
+}
+
+int isBadMalloc(ebuImage *img){
+    if (img->dataBlock == NULL){
+        return 0;
+    }
+    return 1;
 }

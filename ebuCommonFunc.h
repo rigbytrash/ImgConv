@@ -7,6 +7,7 @@ typedef struct _ebuImage {
     int width;
     int height;
     unsigned char ** imageData;
+    unsigned char * dataBlock;
     long long numBytes;
 } ebuImage;
 
@@ -14,3 +15,4 @@ int checkMagicNumber(unsigned short *magicNumberValue, char *inputFilename);
 int dimensionScan(int check, ebuImage *img, char *inputFilename);
 int checkData(FILE *inputFile, ebuImage *img, char *inputFilename);
 void mallocTheArray(ebuImage *img);
+int isBadMalloc(ebuImage *img);

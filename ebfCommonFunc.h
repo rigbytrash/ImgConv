@@ -7,6 +7,7 @@ typedef struct _ebfImage {
     int width;
     int height;
     unsigned int ** imageData;
+    unsigned int * dataBlock;
     long long numBytes;
 } ebfImage;
 

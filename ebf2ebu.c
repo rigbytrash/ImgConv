@@ -83,7 +83,7 @@ int main(int argc, char **argv)
     mallocTheArray(image);
 
     // if malloc is unsuccessful, it will return a null pointer
-    if (image->imageData == NULL)
+    if (isBadMalloc(image) == 0)
         { // check malloc
         fclose(inputFile);
         printf("ERROR: Image Malloc Failed\n");

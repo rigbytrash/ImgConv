@@ -59,18 +59,17 @@ int checkData(FILE *inputFile, ebfImage *img, char *inputFilename){
 }
 
 void mallocTheArray(ebfImage *img){
-    img->imageData = (unsigned int **)malloc((img->height*img->width) * sizeof(unsigned int*));
+    img->imageData = (unsigned int **)malloc(img->height * sizeof(unsigned int*));
+    img->dataBlock = (unsigned int*)malloc(img->height*img->width*sizeof(unsigned int));
     for (int i = 0; i < img->height; i = i + 1){
-        img->imageData[i] = (unsigned int*)malloc((img->height*img->width) * sizeof(unsigned int));
+        img->imageData[i] = img->dataBlock + i * img->width;
     }
 }
 
 int isBadMalloc(ebfImage *img){
-    if ((long long)img->height > MAX_DIMENSION || (long long)img->width > MAX_DIMENSION){
-        return 0;
-    }
-    if ((long long)img->height < MIN_DIMENSION || (long long)img->width < MIN_DIMENSION){
+    if (img->dataBlock == NULL){
         return 0;
     }
     return 1;
 }
+
