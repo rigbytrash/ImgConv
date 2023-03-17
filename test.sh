@@ -46,6 +46,7 @@ touch tests/data/bad.out
 chmod -w tests/data/bad.out
 chmod -r tests/data/ebf_data/bad_perms.ebf
 chmod -r tests/data/ebu_data/bad_perms.ebu
+chmod -r tests/data/ebc_data/bad_perms.ebc
 
 # keep track of score and total count of tests
 total=0
@@ -103,7 +104,7 @@ run_test ()
 
 # you can remove or comment out any executables you don't want to test
 # full list of executables: ebf2ebu ebuEcho ebuComp ebu2ebf
-EXES=(ebfEcho ebfComp ebuEcho ebuComp ebu2ebf ebf2ebu ebu2ebc)
+EXES=(ebfEcho ebfComp ebuEcho ebuComp ebu2ebf ebf2ebu ebu2ebc ebc2ebu)
 
 # run all of the tests below for all executables given in 'EXES'
 # inside this loop, the executable being run can be referred to by 'testExecutable'
@@ -115,9 +116,13 @@ do
     then
         file_ext=".ebf"
         path="tests/data/ebf_data/"
-    else
+    elif [[ ${testExecutable::3} == "ebu" ]]
+    then
         file_ext=".ebu"
         path="tests/data/ebu_data/"
+    else
+        file_ext=".ebc"
+        path="tests/data/ebc_data/"
     fi
     echo "-------------- TESTING $testExecutable --------------"
 
@@ -322,6 +327,7 @@ done
 chmod +w tests/data/bad.out
 chmod +r tests/data/ebf_data/bad_perms.ebf
 chmod +r tests/data/ebu_data/bad_perms.ebu
+chmod +r tests/data/ebc_data/bad_perms.ebc
 ###### YOU CAN EDIT BELOW THIS POINT
 
 # the run_test function has been incrementing both a counter for how many tests have run

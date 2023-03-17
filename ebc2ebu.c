@@ -1,8 +1,7 @@
 #include "allCommonFunc.h"
-#include "ebuCommonFunc.h"
+#include "ebcCommonFunc.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
 #include <unistd.h>
 
 #define SUCCESS 0
@@ -24,7 +23,7 @@ int main(int argc, char **argv)
     { // main
     switch(checkargs(argc)){
         case 0:
-            printf("Usage: ebu2ebc file1 file2\n");
+            printf("Usage: ebc2ebu file1 file2\n");
             return SUCCESS;
         case 1:
             return BAD_ARGS;
@@ -32,7 +31,7 @@ int main(int argc, char **argv)
             break;
     }
 
-    ebuImage *image = (ebuImage*)malloc(sizeof(ebuImage));
+    Image *image = (Image*)malloc(sizeof(Image));
 
 
     // create and initialise variables used within code
@@ -82,8 +81,6 @@ int main(int argc, char **argv)
     image->imageData = NULL;
     mallocTheArray(image);
 
-
-
     // if malloc is unsuccessful, it will return a null pointer
     if (isBadMalloc(image) == 0)
         { // check malloc
@@ -121,7 +118,7 @@ int main(int argc, char **argv)
 
 
     // write the header data in one block
-    check = fprintf(outputFile, "ec\n%d %d\n", image->height, image->width);
+    check = fprintf(outputFile, "eu\n%d %d\n", image->height, image->width);
     // and use the return from fprintf to check that we wrote.
     if (check == 0) 
         { // check write
@@ -131,38 +128,19 @@ int main(int argc, char **argv)
         return BAD_OUTPUT;
         } // check write
 
-        int counter = 0;
-        unsigned char mask1 = (unsigned char) 0x80;
-        uint8_t toOutput;
-        uint8_t toSaveToOutput;
-        uint8_t current;
-
-        for (int currentRow = 0; currentRow < image->height; currentRow++){
-            for (int currentCol = 0; currentCol < image->width; currentCol++){
-                current = image->imageData[currentRow][currentCol]<< 3; //shifts the 3 zeros to the end
-
-                for (int i = 0; i < 5; i ++){
-                    toSaveToOutput = current & mask1; //applys the mask to only get the top bit
-                    toSaveToOutput = (toSaveToOutput >> counter); //moves the bit to the correct place to be pushed
-                    toOutput |= toSaveToOutput; //places the bit in the output buffer
-                    counter = counter + 1;
-
-                    if (counter == 8){ // writes the output to the file when the buffer is full, then resets buffer
-                        counter = 0;
-                        check = fwrite(&toOutput,sizeof(unsigned char),1,outputFile); 
-                        if (check == 0)
-                        { // check write
-                            fclose(outputFile);
-                            free(image->imageData);
-                            printf("ERROR: Bad Output\n");
-                            return BAD_OUTPUT;
-                        }
-                        toOutput = 0;
-                    }
-                    current <<= 1;
-                }
+    // iterate though the array and print out pixel values
+    for (int currentRow = 0; currentRow < image->height; currentRow++){
+        for (int currentCol = 0; currentCol < image->width; currentCol++){
+            check = fwrite(&image->imageData[currentRow][currentCol],sizeof(unsigned char),1,outputFile); 
+            if (check == 0)
+            { // check write
+                fclose(outputFile);
+                free(image->imageData);
+                printf("ERROR: Bad Output\n");
+                return BAD_OUTPUT;
             }
         }
+    }    
     
 
     // free allocated memory before exit
