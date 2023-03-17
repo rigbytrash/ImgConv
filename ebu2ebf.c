@@ -31,7 +31,7 @@ int main(int argc, char **argv)
             break;
     }
 
-    ebuImage *image = (ebuImage*)malloc(sizeof(ebuImage));
+    Image *image = (Image*)malloc(sizeof(Image));
 
 
     // create and initialise variables used within code

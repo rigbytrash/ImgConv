@@ -31,7 +31,7 @@ int main(int argc, char **argv)
             break;
     }
 
-    ebuImage *image1 = (ebuImage*)malloc(sizeof(ebuImage));
+    Image *image1 = (Image*)malloc(sizeof(Image));
 
     char *inputFilename1 = argv[1];
 
@@ -104,7 +104,7 @@ int main(int argc, char **argv)
     fclose(inputFile1);
 
      // create and initialise variables used within code
-    ebuImage *image2 = (ebuImage*)malloc(sizeof(ebuImage));
+    Image *image2 = (Image*)malloc(sizeof(Image));
     char *inputFilename2 = argv[2];
 
     // open the input file in read mode
