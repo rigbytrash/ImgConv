@@ -3,7 +3,6 @@
 #include <unistd.h>
 #include <stdint.h>
 
-
 typedef struct _Image {
     unsigned char magicNumber[2];
     int width;

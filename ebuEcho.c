@@ -1,23 +1,9 @@
 #include "allCommonFunc.h"
 #include "ebuCommonFunc.h"
+#include "constants.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-
-#define SUCCESS 0
-#define BAD_ARGS 1
-#define BAD_FILE 2
-#define BAD_MAGIC_NUMBER 3
-#define BAD_DIM 4
-#define BAD_MALLOC 5
-#define BAD_DATA 6
-#define BAD_OUTPUT 7
-#define MAGIC_NUMBER 0x7565
-#define MAX_DIMENSION 262144
-#define MIN_DIMENSION 1
-#define MAX_DATA 31
-#define MIN_DATA 0
-
 
 int main(int argc, char **argv)
     { // main
@@ -112,38 +98,20 @@ int main(int argc, char **argv)
     FILE *outputFile = fopen(outputFilename, "wb");
     // validate that the file has been opened correctly
     
-    if (access(outputFilename,W_OK) == -1){
-        printf("ERROR: Bad Output(%s)\n",outputFilename);
-        free(image->imageData);
-        return BAD_OUTPUT;
+    switch(printEBU(image, outputFile, outputFilename, check)){
+        case 0:
+            free(image->imageData);
+            return BAD_OUTPUT;
+            break;
+        case 1:
+            fclose(outputFile);
+            free(image->imageData);
+            printf("ERROR: Bad Output\n");
+            return BAD_OUTPUT;
+            break;
+        default:
+            break;
     }
-
-
-    // write the header data in one block
-    check = fprintf(outputFile, "eu\n%d %d\n", image->height, image->width);
-    // and use the return from fprintf to check that we wrote.
-    if (check == 0) 
-        { // check write
-        fclose(outputFile);
-        free(image->imageData);
-        printf("ERROR: Bad Output\n");
-        return BAD_OUTPUT;
-        } // check write
-
-    // iterate though the array and print out pixel values
-    for (int currentRow = 0; currentRow < image->height; currentRow++){
-        for (int currentCol = 0; currentCol < image->width; currentCol++){
-            check = fwrite(&image->imageData[currentRow][currentCol],sizeof(unsigned char),1,outputFile); 
-            if (check == 0)
-            { // check write
-                fclose(outputFile);
-                free(image->imageData);
-                printf("ERROR: Bad Output\n");
-                return BAD_OUTPUT;
-            }
-        }
-    }    
-    
 
     // free allocated memory before exit
     free(image->imageData);

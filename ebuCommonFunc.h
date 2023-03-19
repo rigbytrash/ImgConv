@@ -9,3 +9,4 @@ int dimensionScan(int check, Image *img, char *inputFilename);
 int checkData(FILE *inputFile, Image *img, char *inputFilename);
 void mallocTheArray(Image *img);
 int isBadMalloc(Image *img);
+int printEBU(Image *img, FILE *outputFile, char* outputFilename, int check);

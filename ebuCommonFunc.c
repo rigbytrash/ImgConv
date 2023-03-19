@@ -1,23 +1,12 @@
 #include "ebuCommonFunc.h"
 #include "allCommonFunc.h"
+#include "constants.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdint.h>
 
-#define SUCCESS 0
-#define BAD_ARGS 1
-#define BAD_FILE 2
-#define BAD_MAGIC_NUMBER 3
-#define BAD_DIM 4
-#define BAD_MALLOC 5
-#define BAD_DATA 6
-#define BAD_OUTPUT 7
 #define MAGIC_NUMBER 0x7565
-#define MAX_DIMENSION 262144
-#define MIN_DIMENSION 1
-#define MAX_DATA 31
-#define MIN_DATA 0
 
 int checkMagicNumber(unsigned short *magicNumberValue, char *inputFilename){
     if (*magicNumberValue != MAGIC_NUMBER){
@@ -71,4 +60,33 @@ int isBadMalloc(Image *img){
         return 0;
     }
     return 1;
+}
+
+int printEBU(Image *img, FILE *outputFile, char* outputFilename, int check){
+
+    if (access(outputFilename,W_OK) == -1){
+        printf("ERROR: Bad Output(%s)\n",outputFilename);
+        return 0;
+    }
+    // write the header data in one block
+    check = fprintf(outputFile, "eu\n%d %d\n", img->height, img->width);
+    // and use the return from fprintf to check that we wrote.
+    if (check == 0) 
+        { // check write
+            printf("ERROR: Bad Output\n");
+            return 1;
+        } // check write
+
+    // iterate though the array and print out pixel values
+    for (int currentRow = 0; currentRow < img->height; currentRow++){
+        for (int currentCol = 0; currentCol < img->width; currentCol++){
+            check = fwrite(&img->imageData[currentRow][currentCol],sizeof(unsigned char),1,outputFile); 
+            if (check == 0)
+            { 
+                printf("ERROR: Bad Output\n");
+                return 1;
+            }
+        }
+    }    
+    return 2;
 }

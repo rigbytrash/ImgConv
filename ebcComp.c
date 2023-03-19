@@ -1,5 +1,5 @@
 #include "allCommonFunc.h"
-#include "ebfCommonFunc.h"
+#include "ebcCommonFunc.h"
 #include "constants.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,7 +10,7 @@ int main(int argc, char **argv)
     // validate that user has enter 2 arguments (plus the executable name)
     switch(checkargs(argc)){
         case 0:
-            printf("Usage: ebfComp file1 file2\n");
+            printf("Usage: ebcComp file1 file2\n");
             return SUCCESS;
         case 1:
             return BAD_ARGS;
@@ -18,12 +18,12 @@ int main(int argc, char **argv)
             break;
     }
 
-    ebfImage *image1 = (ebfImage*)malloc(sizeof(ebfImage));
+    Image *image1 = (Image*)malloc(sizeof(Image));
 
     char *inputFilename1 = argv[1];
 
     // open the input file in read mode
-    FILE *inputFile1 = fopen(argv[1], "r");
+    FILE *inputFile1 = fopen(argv[1], "rb");
 
     // check file opened successfully
     switch(checkReadFileAccess(inputFilename1)){
@@ -65,6 +65,7 @@ int main(int argc, char **argv)
     image1->imageData = NULL;
     mallocTheArray(image1);
 
+
     // if malloc is unsuccessful, it will return a null pointer
     if (isBadMalloc(image1) == 0)
         { // check malloc
@@ -89,9 +90,8 @@ int main(int argc, char **argv)
     // now we have finished using the inputFile1 we should close it
     fclose(inputFile1);
 
-
-    // create and initialise variables used within code
-    ebfImage *image2 = (ebfImage*)malloc(sizeof(ebfImage));
+     // create and initialise variables used within code
+    Image *image2 = (Image*)malloc(sizeof(Image));
     char *inputFilename2 = argv[2];
 
     // open the input file in read mode
