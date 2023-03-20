@@ -1,4 +1,3 @@
-#include "allCommonFunc.h"
 #include "ebfCommonFunc.h"
 #include "constants.h"
 #include <stdio.h>
@@ -18,7 +17,7 @@ int main(int argc, char **argv)
             break;
     }
 
-    ebfImage *image1 = (ebfImage*)malloc(sizeof(ebfImage));
+    Image *image1 = (Image*)malloc(sizeof(Image));
 
     char *inputFilename1 = argv[1];
 
@@ -91,7 +90,7 @@ int main(int argc, char **argv)
 
 
     // create and initialise variables used within code
-    ebfImage *image2 = (ebfImage*)malloc(sizeof(ebfImage));
+    Image *image2 = (Image*)malloc(sizeof(Image));
     char *inputFilename2 = argv[2];
 
     // open the input file in read mode

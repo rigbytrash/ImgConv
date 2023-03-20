@@ -1,5 +1,4 @@
 #include "ebuCommonFunc.h"
-#include "allCommonFunc.h"
 #include "constants.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -60,33 +59,4 @@ int isBadMalloc(Image *img){
         return 0;
     }
     return 1;
-}
-
-int printEBU(Image *img, FILE *outputFile, char* outputFilename, int check){
-
-    if (access(outputFilename,W_OK) == -1){
-        printf("ERROR: Bad Output(%s)\n",outputFilename);
-        return 0;
-    }
-    // write the header data in one block
-    check = fprintf(outputFile, "eu\n%d %d\n", img->height, img->width);
-    // and use the return from fprintf to check that we wrote.
-    if (check == 0) 
-        { // check write
-            printf("ERROR: Bad Output\n");
-            return 1;
-        } // check write
-
-    // iterate though the array and print out pixel values
-    for (int currentRow = 0; currentRow < img->height; currentRow++){
-        for (int currentCol = 0; currentCol < img->width; currentCol++){
-            check = fwrite(&img->imageData[currentRow][currentCol],sizeof(unsigned char),1,outputFile); 
-            if (check == 0)
-            { 
-                printf("ERROR: Bad Output\n");
-                return 1;
-            }
-        }
-    }    
-    return 2;
 }

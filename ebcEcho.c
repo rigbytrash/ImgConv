@@ -1,4 +1,4 @@
-#include "ebuCommonFunc.h"
+#include "ebcCommonFunc.h"
 #include "constants.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,7 +8,7 @@ int main(int argc, char **argv)
     { // main
     switch(checkargs(argc)){
         case 0:
-            printf("Usage: ebuEcho file1 file2\n");
+            printf("Usage: ebc2ebu file1 file2\n");
             return SUCCESS;
         case 1:
             return BAD_ARGS;
@@ -66,8 +66,6 @@ int main(int argc, char **argv)
     image->imageData = NULL;
     mallocTheArray(image);
 
-
-
     // if malloc is unsuccessful, it will return a null pointer
     if (isBadMalloc(image) == 0)
         { // check malloc
@@ -97,7 +95,7 @@ int main(int argc, char **argv)
     FILE *outputFile = fopen(outputFilename, "wb");
     // validate that the file has been opened correctly
     
-    switch(printEBU(image, outputFile, outputFilename, check)){
+    switch(printEBC(image, outputFile, outputFilename, check)){
         case 0:
             free(image->imageData);
             return BAD_OUTPUT;
@@ -110,7 +108,7 @@ int main(int argc, char **argv)
             break;
         default:
             break;
-    }
+    } 
 
     // free allocated memory before exit
     free(image->imageData);
@@ -118,6 +116,6 @@ int main(int argc, char **argv)
     fclose(outputFile);
 
     // print final success message and return
-    printf("ECHOED\n");
+    printf("CONVERTED\n");
     return SUCCESS;
     } // main()

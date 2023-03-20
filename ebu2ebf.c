@@ -1,4 +1,3 @@
-#include "allCommonFunc.h"
 #include "ebuCommonFunc.h"
 #include "constants.h"
 #include <stdio.h>
@@ -105,38 +104,14 @@ int main(int argc, char **argv)
     }
 
 
-    // write the header data in one block
-    check = fprintf(outputFile, "eb\n%d %d\n", image->height, image->width);
-    // and use the return from fprintf to check that we wrote.
-    if (check == 0) 
-        { // check write
-        fclose(outputFile);
-        free(image->imageData);
-        printf("ERROR: Bad Output\n");
-        return BAD_OUTPUT;
-        } // check write
-
-    // iterate though the array and print out pixel values
-    for (int currentRow = 0; currentRow < image->height; currentRow++){
-        for (int currentCol = 0; currentCol < image->width; currentCol++){
-            // if (currentRow == height -1 && currentCol == currentCol - 1){
-            //     check = fprintf(inputFile, "%u", imageData[currentRow][currentCol]);
-            // }
-            // else{
-            //     check = fprintf(inputFile, "%u%c", imageData[currentRow][currentCol], (currentCol != width - 1) ? ' ' : '\n');
-            // }
-            check = fprintf(inputFile, "%u%c", image->imageData[currentRow][currentCol], (currentCol != image->width - 1) ? ' ' : '\n');
-
-            if (check == 0)
-            { // check write
-                fclose(outputFile);
-                free(image->imageData);
-                printf("ERROR: Bad Output\n");
-                return BAD_OUTPUT;
-            }
-        }
-    }    
-    
+    switch(printEBF(image, outputFile, outputFilename, check)){
+        case 0:
+            free(image->imageData);
+            return BAD_OUTPUT;
+            break;
+        default:
+            break;
+    }  
 
     // free allocated memory before exit
     free(image->imageData);

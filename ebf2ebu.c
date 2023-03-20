@@ -1,4 +1,3 @@
-#include "allCommonFunc.h"
 #include "ebfCommonFunc.h"
 #include "constants.h"
 #include <stdio.h>
@@ -17,7 +16,7 @@ int main(int argc, char **argv)
             break;
     }
 
-    ebfImage *image = (ebfImage*)malloc(sizeof(ebfImage));
+    Image *image = (Image*)malloc(sizeof(Image));
 
     // long long numBytes;
     char *inputFilename = argv[1];
@@ -97,37 +96,20 @@ int main(int argc, char **argv)
     FILE *outputFile = fopen(outputFilename, "w");
     // validate that the file has been opened correctly
     
-    if (access(outputFilename,W_OK) == -1){
-        printf("ERROR: Bad Output(%s)\n",outputFilename);
-        free(image->imageData);
-        return BAD_OUTPUT;
+   switch(printEBU(image, outputFile, outputFilename, check)){
+        case 0:
+            free(image->imageData);
+            return BAD_OUTPUT;
+            break;
+        case 1:
+            fclose(outputFile);
+            free(image->imageData);
+            printf("ERROR: Bad Output\n");
+            return BAD_OUTPUT;
+            break;
+        default:
+            break;
     }
-
-
-    // write the header data in one block
-    check = fprintf(outputFile, "eu\n%d %d\n", image->height, image->width);
-    // and use the return from fprintf to check that we wrote.
-    if (check == 0) 
-        { // check write
-        fclose(outputFile);
-        free(image->imageData);
-        printf("ERROR: Bad Output\n");
-        return BAD_OUTPUT;
-        } // check write
-
-    // iterate though the array and print out pixel values
-    for (int currentRow = 0; currentRow < image->height; currentRow++){
-        for (int currentCol = 0; currentCol < image->width; currentCol++){
-            check = fwrite(&image->imageData[currentRow][currentCol],sizeof(unsigned char),1,outputFile); 
-            if (check == 0)
-            { // check write
-                fclose(outputFile);
-                free(image->imageData);
-                printf("ERROR: Bad Output\n");
-                return BAD_OUTPUT;
-            }
-        }
-    }    
 
     // free allocated memory before exit
     free(image->imageData);

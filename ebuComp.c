@@ -1,4 +1,3 @@
-#include "allCommonFunc.h"
 #include "ebuCommonFunc.h"
 #include "constants.h"
 #include <stdio.h>

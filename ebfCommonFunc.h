@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include "struct.h"
+#include "allCommonFunc.h"
 
 int checkMagicNumber(unsigned short *magicNumberValue, char *inputFilename);
-int dimensionScan(int check, ebfImage *img, char *inputFIlename);
-int checkData(FILE *inputFile, ebfImage *img, char *inputFilename);
-void mallocTheArray(ebfImage *img);
-int isBadMalloc(ebfImage *img);
+int dimensionScan(int check, Image *img, char *inputFIlename);
+int checkData(FILE *inputFile, Image *img, char *inputFilename);
+void mallocTheArray(Image *img);
+int isBadMalloc(Image *img);

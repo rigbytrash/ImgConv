@@ -1,5 +1,4 @@
 #include "ebcCommonFunc.h"
-#include "allCommonFunc.h"
 #include "constants.h"
 #include <stdio.h>
 #include <stdlib.h>
