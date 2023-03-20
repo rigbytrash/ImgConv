@@ -29,8 +29,7 @@ int checkData(FILE *inputFile, Image *img, char *inputFilename){
     for (int currentRow = 0; currentRow < img->height; currentRow++){
         for (int currentCol = 0; currentCol < img->width; currentCol++){
             int check2 = fread(&img->imageData[currentRow][currentCol], sizeof(uint8_t), 1, inputFile);
-            if (check2 !=1 || img->imageData[currentRow][currentCol] > MAX_DATA || img->imageData[currentRow][currentCol] < MIN_DATA)
-                { // check inputted data
+            if (check2 !=1 || img->imageData[currentRow][currentCol] > MAX_DATA || img->imageData[currentRow][currentCol] < MIN_DATA){ // check inputted data
                     printf("ERROR: Bad Data (%s)\n", inputFilename);
                     return 0;
                 }
@@ -43,6 +42,7 @@ int checkData(FILE *inputFile, Image *img, char *inputFilename){
             printf("ERROR: Bad Data(%s)\n", inputFilename);
             return 1;
         }
+
     return 2;
 }
 
@@ -58,5 +58,6 @@ int isBadMalloc(Image *img){
     if (img->dataBlock == NULL){
         return 0;
     }
+    
     return 1;
 }

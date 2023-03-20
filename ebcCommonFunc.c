@@ -12,6 +12,7 @@ int checkMagicNumber(unsigned short *magicNumberValue, char *inputFilename){
             printf("ERROR: Bad Magic Number (%s)\n", inputFilename);
         return 0;
     }
+
     return 1;
 }
 
@@ -21,6 +22,7 @@ int dimensionScan(int check, Image *img, char *inputFilename){
         printf("ERROR: Bad Dimensions (%s)\n", inputFilename);
         return 0;
     }
+
     return 1;
 }
 
@@ -32,6 +34,7 @@ int checkData(FILE *inputFile, Image *img, char *inputFilename){
     for (int i = 0; i < img->height*(5.0f/8.0f); i = i + 1){
         imageDataForEbc[i] = dataBlockForEbc + i * img->width;
     }
+
     fread(&imageDataForEbc[0][0], sizeof(uint8_t), 1, inputFile); // skip a line
     for (int currentRow = 0; currentRow < (img->height*(5.0f/8.0f)); currentRow++){ // read in the compressed data to the new array
         for (int currentCol = 0; currentCol < (img->width); currentCol++){
@@ -42,24 +45,26 @@ int checkData(FILE *inputFile, Image *img, char *inputFilename){
             }
         }
     }
+
         unsigned char *tmp; // checking too much
         int check2 = fread(&tmp, sizeof(uint8_t) - 1, 1, inputFile);
         if (check2 != 0){
             printf("ERROR: Bad Data(%s)\n", inputFilename);
             return 1;
         }
-                                // convert from 5 bit to 8 bit and write to the img->imageData
+
+    // convert from 5 bit to 8 bit and write to the img->imageData
     int currentWriteRow = 0;
     int currentWriteCol = 0;
     int counter = 0;
     unsigned char mask1 = (unsigned char) 0x80;
     uint8_t toOutput;
     uint8_t writeToOutput;
-    // uint8_t toSaveToOutput;
     uint8_t current;
     for (int currentRow = 0; currentRow < (img->height*(5.0f/8.0f)); currentRow++){ // read in the compressed data to the new array
         for (int currentCol = 0; currentCol < ((img->width)); currentCol++){
             current = imageDataForEbc[currentRow][currentCol];
+
             for (int i = 0; i < 8; i++){
                 // place current[i] in output[counter]
                 writeToOutput = 0;
@@ -71,6 +76,7 @@ int checkData(FILE *inputFile, Image *img, char *inputFilename){
                 if (counter == 5){
                     counter = 0;
                     img->imageData[currentWriteRow][currentWriteCol] = toOutput >> 3;
+
                     if (img->imageData[currentWriteRow][currentWriteCol] > 31){
                         printf("%d\n", img->imageData[currentWriteRow][currentWriteCol]);
                     }
@@ -78,8 +84,8 @@ int checkData(FILE *inputFile, Image *img, char *inputFilename){
                         printf("ERROR: Bad Data (%s)\n", inputFilename);
                         return 0;
                     }
-                    toOutput = 0;
 
+                    toOutput = 0;
                     if(currentWriteCol < img->width){
                         currentWriteCol++;
                     }
@@ -87,11 +93,11 @@ int checkData(FILE *inputFile, Image *img, char *inputFilename){
                         currentWriteCol = 0;
                         currentWriteRow++;
                     }
-                    
                 }
             }
         }
     }
+    
     return 2;
 }
 
@@ -107,5 +113,6 @@ int isBadMalloc(Image *img){
     if (img->dataBlock == NULL){
         return 0;
     }
+    
     return 1;
 }

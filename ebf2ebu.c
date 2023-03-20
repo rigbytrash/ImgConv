@@ -5,7 +5,7 @@
 #include <unistd.h>
 
 int main(int argc, char **argv)
-    { // main
+    {
     switch(checkargs(argc)){
         case 0:
             printf("Usage: ebf2ebu file1 file2\n");
@@ -18,15 +18,14 @@ int main(int argc, char **argv)
 
     Image *image = (Image*)malloc(sizeof(Image));
 
-    // long long numBytes;
     char *inputFilename = argv[1];
     char *outputFilename = argv[2];
 
 
-    // open the input file in read mode
+    // opens the input file in read mode
     FILE *inputFile = fopen(inputFilename, "r");
 
-    // check file opened successfully
+    // checks file opened successfully
     switch(checkReadFileAccess(inputFilename)){
         case 0:
             printf("ERROR: Bad File Name (1)\n");
@@ -37,7 +36,7 @@ int main(int argc, char **argv)
             break;
     }
 
-    // get first 2 characters which should be magic number
+    // gets first 2 characters which should be magic number
     image->magicNumber[0] = getc(inputFile);
     image->magicNumber[1] = getc(inputFile);
     unsigned short *magicNumberValue = (unsigned short *)image->magicNumber;
@@ -50,7 +49,7 @@ int main(int argc, char **argv)
             break;
     }
 
-    // scan for the dimensions
+    // scans for the dimensions
     // and capture fscanfs return to ensure we got 2 values.
     int check = fscanf(inputFile, "%d %d", &image->height, &image->width);
 
@@ -62,18 +61,16 @@ int main(int argc, char **argv)
             break;            
     }
 
-    // caclulate total size and allocate memory for array
-    // numBytes = (long long) height * width;
+    // caclulates total size and allocate memory for array
     image->imageData = NULL;
     mallocTheArray(image);
 
     // if malloc is unsuccessful, it will return a null pointer
-    if (isBadMalloc(image) == 0)
-        { // check malloc
-        fclose(inputFile);
-        printf("ERROR: Image Malloc Failed\n");
-        return BAD_MALLOC;
-        } // check malloc
+    if (isBadMalloc(image) == 0){
+            fclose(inputFile);
+            printf("ERROR: Image Malloc Failed\n");
+            return BAD_MALLOC;
+        }
 
     switch(checkData(inputFile, image, inputFilename)){
         case 0:
@@ -94,9 +91,8 @@ int main(int argc, char **argv)
 
     // open the output file in write mode
     FILE *outputFile = fopen(outputFilename, "w");
-    // validate that the file has been opened correctly
     
-   switch(printEBU(image, outputFile, outputFilename, check)){
+   switch(printEBU(image, outputFile, outputFilename, check)){ // file perms validation happens here
         case 0:
             free(image->imageData);
             return BAD_OUTPUT;

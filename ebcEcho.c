@@ -5,7 +5,7 @@
 #include <unistd.h>
 
 int main(int argc, char **argv)
-    { // main
+    {
     switch(checkargs(argc)){
         case 0:
             printf("Usage: ebc2ebu file1 file2\n");
@@ -18,15 +18,14 @@ int main(int argc, char **argv)
 
     Image *image = (Image*)malloc(sizeof(Image));
 
-
-    // create and initialise variables used within code
+    // creates and initialise variables used within code
     char *inputFilename = argv[1];
     char *outputFilename = argv[2];
 
-    // open the input file in read mode
+    // opens the input file in read mode
     FILE *inputFile = fopen(inputFilename, "rb");
 
-    // check file opened successfully
+    // checks file opened successfully
     switch(checkReadFileAccess(inputFilename)){
         case 0:
             printf("ERROR: Bad File Name (1)\n");
@@ -37,7 +36,7 @@ int main(int argc, char **argv)
             break;
     }
 
-    // get first 2 characters which should be magic number
+    // gets first 2 characters which should be magic number
     image->magicNumber[0] = getc(inputFile);
     image->magicNumber[1] = getc(inputFile);
     unsigned short *magicNumberValue = (unsigned short *)image->magicNumber;
@@ -62,7 +61,7 @@ int main(int argc, char **argv)
             break;            
     }
 
-    // caclulate total size and allocate memory for array
+    // caclulates total size and allocate memory for array
     image->imageData = NULL;
     mallocTheArray(image);
 
@@ -87,15 +86,13 @@ int main(int argc, char **argv)
             break;
     }
 
-
-    // now we have finished using the inputFile we should close it
+    //file no longer in use
     fclose(inputFile);
 
-    // open the output file in write mode
+    // opens the output file in write mode
     FILE *outputFile = fopen(outputFilename, "wb");
-    // validate that the file has been opened correctly
     
-    switch(printEBC(image, outputFile, outputFilename, check)){
+    switch(printEBC(image, outputFile, outputFilename, check)){ // file perm validation happens here
         case 0:
             free(image->imageData);
             return BAD_OUTPUT;
@@ -118,4 +115,4 @@ int main(int argc, char **argv)
     // print final success message and return
     printf("CONVERTED\n");
     return SUCCESS;
-    } // main()
+    }

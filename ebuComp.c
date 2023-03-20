@@ -4,9 +4,9 @@
 #include <stdlib.h>
 
 int main(int argc, char **argv)
-    { // main
+    {
 
-    // validate that user has enter 2 arguments (plus the executable name)
+    // validates that user has enter 2 arguments (plus the executable name)
     switch(checkargs(argc)){
         case 0:
             printf("Usage: ebuComp file1 file2\n");
@@ -21,10 +21,10 @@ int main(int argc, char **argv)
 
     char *inputFilename1 = argv[1];
 
-    // open the input file in read mode
+    // opens the input file in read mode
     FILE *inputFile1 = fopen(argv[1], "rb");
 
-    // check file opened successfully
+    // checks file opened successfully
     switch(checkReadFileAccess(inputFilename1)){
         case 0:
             printf("ERROR: Bad File Name (1)\n");
@@ -35,7 +35,7 @@ int main(int argc, char **argv)
             break;
     }
 
-    // get first 2 characters which should be magic number
+    // gets first 2 characters which should be magic number
     image1->magicNumber[0] = getc(inputFile1);
     image1->magicNumber[1] = getc(inputFile1);
     unsigned short *magicNumberValue1 = (unsigned short *)image1->magicNumber;
@@ -60,7 +60,6 @@ int main(int argc, char **argv)
             break;            
     }
 
-    // caclulate total size and allocate memory for array
     image1->imageData = NULL;
     mallocTheArray(image1);
 
@@ -73,7 +72,7 @@ int main(int argc, char **argv)
         return BAD_MALLOC;
         } // check malloc
 
-    switch(checkData(inputFile1, image1, inputFilename1)){
+    switch(checkData(inputFile1, image1, inputFilename1)){ // validates file perms
         case 0:
             free(image1->imageData);
             fclose(inputFile1);
@@ -86,14 +85,14 @@ int main(int argc, char **argv)
             break;
     }
 
-    // now we have finished using the inputFile1 we should close it
+    // file no longer in use
     fclose(inputFile1);
 
-     // create and initialise variables used within code
+     // creates and initialise variables used within code
     Image *image2 = (Image*)malloc(sizeof(Image));
     char *inputFilename2 = argv[2];
 
-    // open the input file in read mode
+    // opens the input file in read mode
     FILE *inputFile2 = fopen(argv[2], "r");
 
     // check file opened successfully
@@ -108,7 +107,7 @@ int main(int argc, char **argv)
     }
 
 
-    // get first 2 characters which should be magic number
+    // gets first 2 characters which should be magic number
     image2->magicNumber[0] = getc(inputFile2);
     image2->magicNumber[1] = getc(inputFile2);
     unsigned short *magicNumberValue2 = (unsigned short *)image2->magicNumber;
@@ -121,7 +120,7 @@ int main(int argc, char **argv)
             break;
     }
     
-    // scan for the dimensions
+    // scans for the dimensions
     // and capture fscanfs return to ensure we got 2 values.
     check = fscanf(inputFile2, "%d %d", &image2->height, &image2->width);
     
@@ -133,7 +132,6 @@ int main(int argc, char **argv)
             break;            
     }
 
-    // caclulate total size and allocate memory for array
     image2->imageData = NULL;
     mallocTheArray(image2);
 
@@ -145,7 +143,7 @@ int main(int argc, char **argv)
         return BAD_MALLOC;
         } // check malloc
 
-    switch(checkData(inputFile2, image2, inputFilename2)){
+    switch(checkData(inputFile2, image2, inputFilename2)){ // validates perms
         case 0:
             free(image2->imageData);
             fclose(inputFile1);
@@ -158,7 +156,7 @@ int main(int argc, char **argv)
             break;
     }
 
-    // now we have finished using the inputFile2 we should close it
+    // no longer in use
     fclose(inputFile2);
 
     // compare the data from the two files:
@@ -173,19 +171,17 @@ int main(int argc, char **argv)
         } // free and exit
 
     // check dimensions
-    if ((image1->height != image2->height) || (image1->width != image2->width))
-        { // free and exit
-        free(image1->imageData);
-        free(image2->imageData);
-        printf("DIFFERENT\n");
-        return SUCCESS;
-        } // free and exit
+    if ((image1->height != image2->height) || (image1->width != image2->width)){
+            free(image1->imageData);
+            free(image2->imageData);
+            printf("DIFFERENT\n");
+            return SUCCESS;
+        }
 
     // and check the pixel values
      for (int currentRow = 0; currentRow < image1->height; currentRow++){
         for (int currentCol = 0; currentCol < image1->width; currentCol++){
             if (image1->imageData[currentRow][currentCol] != image2->imageData[currentRow][currentCol]){
-                // free and exit
                 free(image1->imageData);
                 free(image2->imageData);
                 printf("DIFFERENT\n");
@@ -200,4 +196,4 @@ int main(int argc, char **argv)
     // if we have not exited on different data, must be identical
     printf("IDENTICAL\n");
     return SUCCESS;
-    } // main()
+    }

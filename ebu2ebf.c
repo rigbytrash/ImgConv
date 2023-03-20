@@ -5,7 +5,7 @@
 #include <unistd.h>
 
 int main(int argc, char **argv)
-    { // main
+    {
     switch(checkargs(argc)){
         case 0:
             printf("Usage: ebu2ebf file1 file2\n");
@@ -18,15 +18,14 @@ int main(int argc, char **argv)
 
     Image *image = (Image*)malloc(sizeof(Image));
 
-
-    // create and initialise variables used within code
+    // creates and initialise variables used within code
     char *inputFilename = argv[1];
     char *outputFilename = argv[2];
 
-    // open the input file in read mode
+    // opens the input file in read mode
     FILE *inputFile = fopen(inputFilename, "rb");
 
-    // check file opened successfully
+    // checks file opened successfully
     switch(checkReadFileAccess(inputFilename)){
         case 0:
             printf("ERROR: Bad File Name (1)\n");
@@ -62,21 +61,17 @@ int main(int argc, char **argv)
             break;            
     }
 
-    // caclulate total size and allocate memory for array
     image->imageData = NULL;
     mallocTheArray(image);
 
-
-
     // if malloc is unsuccessful, it will return a null pointer
-    if (isBadMalloc(image) == 0)
-        { // check malloc
+    if (isBadMalloc(image) == 0){
         fclose(inputFile);
         printf("ERROR: Image Malloc Failed\n");
         return BAD_MALLOC;
-        } // check malloc
+        }
 
-    switch(checkData(inputFile, image, inputFilename)){
+    switch(checkData(inputFile, image, inputFilename)){ // validates file perms
         case 0:
             free(image->imageData);
             fclose(inputFile);
@@ -90,7 +85,7 @@ int main(int argc, char **argv)
     }
 
 
-    // now we have finished using the inputFile we should close it
+    // file no linger in use
     fclose(inputFile);
 
     // open the output file in write mode
@@ -113,12 +108,12 @@ int main(int argc, char **argv)
             break;
     }  
 
-    // free allocated memory before exit
+    // frees allocated memory before exit
     free(image->imageData);
     // close the output file before exit
     fclose(outputFile);
 
-    // print final success message and return
+    // prints final success message and return
     printf("CONVERTED\n");
     return SUCCESS;
-    } // main()
+    }
