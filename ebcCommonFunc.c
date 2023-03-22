@@ -47,9 +47,9 @@ int checkData(FILE *inputFile, Image *img, char *inputFilename){
     }
 
         unsigned char *tmp; // checking too much
-        int check2 = fread(&tmp, sizeof(uint8_t) - 1, 1, inputFile);
+        int check2 = fread(&tmp, sizeof(uint8_t), 1, inputFile);
         if (check2 != 0){
-            printf("ERROR: Bad Data(%s)\n", inputFilename);
+            printf("ERROR: Bad Data (%s)\n", inputFilename);
             return 1;
         }
 
