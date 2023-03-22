@@ -1,4 +1,4 @@
-#include "ebfCommonFunc.h"
+#include "ebuCommonFunc.h"
 #include "constants.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,7 +8,7 @@ int main(int argc, char **argv)
     {
     switch(checkargs(argc)){
         case 0:
-            printf("Usage: ebfEcho file1 file2\n");
+            printf("Usage: ebu2ebf file1 file2\n");
             return SUCCESS;
         case 1:
             return BAD_ARGS;
@@ -18,12 +18,12 @@ int main(int argc, char **argv)
 
     Image *image = (Image*)malloc(sizeof(Image));
 
+    // creates and initialise variables used within code
     char *inputFilename = argv[1];
     char *outputFilename = argv[2];
 
-
     // opens the input file in read mode
-    FILE *inputFile = fopen(inputFilename, "r");
+    FILE *inputFile = fopen(inputFilename, "rb");
 
     // checks file opened successfully
     switch(checkReadFileAccess(inputFilename)){
@@ -36,7 +36,7 @@ int main(int argc, char **argv)
             break;
     }
 
-    // gets first 2 characters which should be magic number
+    // get first 2 characters which should be magic number
     image->magicNumber[0] = getc(inputFile);
     image->magicNumber[1] = getc(inputFile);
     unsigned short *magicNumberValue = (unsigned short *)image->magicNumber;
@@ -66,9 +66,9 @@ int main(int argc, char **argv)
 
     // if malloc is unsuccessful, it will return a null pointer
     if (isBadMalloc(image) == 0){
-            fclose(inputFile);
-            printf("ERROR: Image Malloc Failed\n");
-            return BAD_MALLOC;
+        fclose(inputFile);
+        printf("ERROR: Image Malloc Failed\n");
+        return BAD_MALLOC;
         }
 
     switch(checkData(inputFile, image, inputFilename)){ // validates file perms
@@ -84,12 +84,19 @@ int main(int argc, char **argv)
             break;
     }
 
-    // file no longer used 
+
+    // file no linger in use
     fclose(inputFile);
 
-    // opens the output file in write mode
-    FILE *outputFile = fopen(outputFilename, "w");
+    // open the output file in write mode
+    FILE *outputFile = fopen(outputFilename, "wb");
     // validate that the file has been opened correctly
+    
+    if (access(outputFilename,W_OK) == -1){
+        printf("ERROR: Bad Output(%s)\n",outputFilename);
+        free(image->imageData);
+        return BAD_OUTPUT;
+    }
 
 
     switch(printEBF(image, outputFile, outputFilename, check)){
@@ -103,10 +110,10 @@ int main(int argc, char **argv)
 
     // frees allocated memory before exit
     free(image->imageData);
-    // closes the output file before exit
+    // close the output file before exit
     fclose(outputFile);
 
     // prints final success message and return
-    printf("ECHOED\n");
+    printf("CONVERTED\n");
     return SUCCESS;
     }

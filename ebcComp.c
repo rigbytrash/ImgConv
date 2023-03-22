@@ -1,4 +1,4 @@
-#include "ebfCommonFunc.h"
+#include "ebcCommonFunc.h"
 #include "constants.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,7 +9,7 @@ int main(int argc, char **argv)
     // validates that user has enter 2 arguments (plus the executable name)
     switch(checkargs(argc)){
         case 0:
-            printf("Usage: ebfComp file1 file2\n");
+            printf("Usage: ebcComp file1 file2\n");
             return SUCCESS;
         case 1:
             return BAD_ARGS;
@@ -22,7 +22,7 @@ int main(int argc, char **argv)
     char *inputFilename1 = argv[1];
 
     // opens the input file in read mode
-    FILE *inputFile1 = fopen(argv[1], "r");
+    FILE *inputFile1 = fopen(argv[1], "rb");
 
     // checks file opened successfully
     switch(checkReadFileAccess(inputFilename1)){
@@ -63,6 +63,7 @@ int main(int argc, char **argv)
     image1->imageData = NULL;
     mallocTheArray(image1);
 
+
     // if malloc is unsuccessful, it will return a null pointer
     if (isBadMalloc(image1) == 0){
         fclose(inputFile1);
@@ -83,18 +84,17 @@ int main(int argc, char **argv)
             break;
     }
 
-    // file no longer in use
+    // now we have finished using the inputFile1 we should close it
     fclose(inputFile1);
 
-
-    // creates and initialise variables used within code
+     // create and initialise variables used within code
     Image *image2 = (Image*)malloc(sizeof(Image));
     char *inputFilename2 = argv[2];
 
-    // opens the input file in read mode
+    // open the input file in read mode
     FILE *inputFile2 = fopen(argv[2], "r");
 
-    // checks file opened successfully
+    // check file opened successfully
     switch(checkReadFileAccess(inputFilename2)){
         case 0:
             printf("ERROR: Bad File Name (2)\n");
@@ -131,14 +131,15 @@ int main(int argc, char **argv)
             break;            
     }
 
+    // caclulate total size and allocate memory for array
     image2->imageData = NULL;
     mallocTheArray(image2);
 
     // if malloc is unsuccessful, it will return a null pointer
     if (isBadMalloc(image2) == 0){
-            fclose(inputFile2);
-            printf("ERROR: Image Malloc Failed\n");
-            return BAD_MALLOC;
+        fclose(inputFile2);
+        printf("ERROR: Image Malloc Failed\n");
+        return BAD_MALLOC;
         }
 
     switch(checkData(inputFile2, image2, inputFilename2)){
@@ -154,35 +155,37 @@ int main(int argc, char **argv)
             break;
     }
 
-    // file no longer in use
+    // now we have finished using the inputFile2 we should close it
     fclose(inputFile2);
 
     // compare the data from the two files:
     
     // start with magic number values
     if (*magicNumberValue1 != *magicNumberValue2){
-        free(image1->imageData);
-        free(image2->imageData);
-        printf("DIFFERENT\n");
-        return SUCCESS;
-        }
-
-    // check dimensions
-    if ((image1->height != image2->height) || (image1->width != image2->width)){
             free(image1->imageData);
             free(image2->imageData);
             printf("DIFFERENT\n");
             return SUCCESS;
         }
 
+    // check dimensions
+    if ((image1->height != image2->height) || (image1->width != image2->width))
+        { // free and exit
+        free(image1->imageData);
+        free(image2->imageData);
+        printf("DIFFERENT\n");
+        return SUCCESS;
+        } // free and exit
+
     // and check the pixel values
      for (int currentRow = 0; currentRow < image1->height; currentRow++){
         for (int currentCol = 0; currentCol < image1->width; currentCol++){
             if (image1->imageData[currentRow][currentCol] != image2->imageData[currentRow][currentCol]){
-                    free(image1->imageData);
-                    free(image2->imageData);
-                    printf("DIFFERENT\n");
-                    return SUCCESS;
+                // free and exit
+                free(image1->imageData);
+                free(image2->imageData);
+                printf("DIFFERENT\n");
+                return SUCCESS;
             }
         }
      }

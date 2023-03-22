@@ -1,14 +1,15 @@
-#include "ebfCommonFunc.h"
+#include "ebuCommonFunc.h"
 #include "constants.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <unistd.h>
 
 int main(int argc, char **argv)
     {
     switch(checkargs(argc)){
         case 0:
-            printf("Usage: ebfEcho file1 file2\n");
+            printf("Usage: ebu2ebc file1 file2\n");
             return SUCCESS;
         case 1:
             return BAD_ARGS;
@@ -18,14 +19,15 @@ int main(int argc, char **argv)
 
     Image *image = (Image*)malloc(sizeof(Image));
 
+
+    // creates and initialise variables used within code
     char *inputFilename = argv[1];
     char *outputFilename = argv[2];
 
-
     // opens the input file in read mode
-    FILE *inputFile = fopen(inputFilename, "r");
+    FILE *inputFile = fopen(inputFilename, "rb");
 
-    // checks file opened successfully
+    // check file opened successfully
     switch(checkReadFileAccess(inputFilename)){
         case 0:
             printf("ERROR: Bad File Name (1)\n");
@@ -49,7 +51,7 @@ int main(int argc, char **argv)
             break;
     }
 
-    // scan for the dimensions
+    // scans for the dimensions
     // and capture fscanfs return to ensure we got 2 values.
     int check = fscanf(inputFile, "%d %d", &image->height, &image->width);
 
@@ -64,14 +66,16 @@ int main(int argc, char **argv)
     image->imageData = NULL;
     mallocTheArray(image);
 
+
+
     // if malloc is unsuccessful, it will return a null pointer
     if (isBadMalloc(image) == 0){
-            fclose(inputFile);
-            printf("ERROR: Image Malloc Failed\n");
-            return BAD_MALLOC;
+        fclose(inputFile);
+        printf("ERROR: Image Malloc Failed\n");
+        return BAD_MALLOC;
         }
 
-    switch(checkData(inputFile, image, inputFilename)){ // validates file perms
+    switch(checkData(inputFile, image, inputFilename)){
         case 0:
             free(image->imageData);
             fclose(inputFile);
@@ -84,29 +88,33 @@ int main(int argc, char **argv)
             break;
     }
 
-    // file no longer used 
+
+    // file no longer in use
     fclose(inputFile);
 
     // opens the output file in write mode
-    FILE *outputFile = fopen(outputFilename, "w");
-    // validate that the file has been opened correctly
-
-
-    switch(printEBF(image, outputFile, outputFilename, check)){
+    FILE *outputFile = fopen(outputFilename, "wb");
+    
+    switch(printEBC(image, outputFile, outputFilename, check)){ // does file validation
         case 0:
             free(image->imageData);
             return BAD_OUTPUT;
             break;
+        case 1:
+            fclose(outputFile);
+            free(image->imageData);
+            return BAD_OUTPUT;
         default:
             break;
     }  
+    
 
     // frees allocated memory before exit
     free(image->imageData);
-    // closes the output file before exit
+    // close the output file before exit
     fclose(outputFile);
 
     // prints final success message and return
-    printf("ECHOED\n");
+    printf("CONVERTED\n");
     return SUCCESS;
     }

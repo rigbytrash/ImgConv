@@ -8,7 +8,7 @@ int main(int argc, char **argv)
     {
     switch(checkargs(argc)){
         case 0:
-            printf("Usage: ebfEcho file1 file2\n");
+            printf("Usage: ebf2ebu file1 file2\n");
             return SUCCESS;
         case 1:
             return BAD_ARGS;
@@ -49,7 +49,7 @@ int main(int argc, char **argv)
             break;
     }
 
-    // scan for the dimensions
+    // scans for the dimensions
     // and capture fscanfs return to ensure we got 2 values.
     int check = fscanf(inputFile, "%d %d", &image->height, &image->width);
 
@@ -61,6 +61,7 @@ int main(int argc, char **argv)
             break;            
     }
 
+    // caclulates total size and allocate memory for array
     image->imageData = NULL;
     mallocTheArray(image);
 
@@ -71,7 +72,7 @@ int main(int argc, char **argv)
             return BAD_MALLOC;
         }
 
-    switch(checkData(inputFile, image, inputFilename)){ // validates file perms
+    switch(checkData(inputFile, image, inputFilename)){
         case 0:
             free(image->imageData);
             fclose(inputFile);
@@ -84,29 +85,34 @@ int main(int argc, char **argv)
             break;
     }
 
-    // file no longer used 
+
+    // now we have finished using the inputFile we should close it
     fclose(inputFile);
 
-    // opens the output file in write mode
+    // open the output file in write mode
     FILE *outputFile = fopen(outputFilename, "w");
-    // validate that the file has been opened correctly
-
-
-    switch(printEBF(image, outputFile, outputFilename, check)){
+    
+   switch(printEBU(image, outputFile, outputFilename, check)){ // file perms validation happens here
         case 0:
             free(image->imageData);
             return BAD_OUTPUT;
             break;
+        case 1:
+            fclose(outputFile);
+            free(image->imageData);
+            printf("ERROR: Bad Output\n");
+            return BAD_OUTPUT;
+            break;
         default:
             break;
-    }  
+    }
 
-    // frees allocated memory before exit
+    // free allocated memory before exit
     free(image->imageData);
-    // closes the output file before exit
+    // close the output file before exit
     fclose(outputFile);
 
-    // prints final success message and return
-    printf("ECHOED\n");
+    // print final success message and return
+    printf("CONVERTED\n");
     return SUCCESS;
-    }
+    } // main()

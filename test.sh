@@ -7,11 +7,20 @@
 # this ensures you have permission to run this script
 # you should only need to do this once.
 
+
+
 # You can then run with: 
 # ./test.sh
 # You can save your tests into a file using:
 # ./tests.sh > name_of_file.txt
 # you can edit which executables to run on line 90.
+
+# checking for the -echo option.
+ECHO=0
+if [[ $1 = '-echo' ]]
+then
+    ECHO=1
+fi
 
 # we clean up object files and then recompile as standard
 # this is because when you may be working across multiple devices
@@ -37,6 +46,7 @@ touch tests/data/bad.out
 chmod -w tests/data/bad.out
 chmod -r tests/data/ebf_data/bad_perms.ebf
 chmod -r tests/data/ebu_data/bad_perms.ebu
+chmod -r tests/data/ebc_data/bad_perms.ebc
 
 # keep track of score and total count of tests
 total=0
@@ -53,6 +63,12 @@ score=0
 # and updating both the number of tests run and the number of passes
 run_test () 
     { # run_test()
+
+    if [ $ECHO -eq 1 ]
+    then
+        echo $1 $2 $3
+    fi
+
     # capture returned message
     message=$($1 $2 $3) 
     # run again (pipe to null so it doesn't display to user) for the output code
@@ -88,7 +104,7 @@ run_test ()
 
 # you can remove or comment out any executables you don't want to test
 # full list of executables: ebf2ebu ebuEcho ebuComp ebu2ebf
-EXES=(ebfEcho ebfComp)
+EXES=(ebfEcho ebfComp ebuEcho ebuComp ebu2ebf ebf2ebu ebu2ebc ebc2ebu ebcComp ebcEcho)
 
 # run all of the tests below for all executables given in 'EXES'
 # inside this loop, the executable being run can be referred to by 'testExecutable'
@@ -100,9 +116,13 @@ do
     then
         file_ext=".ebf"
         path="tests/data/ebf_data/"
-    else
+    elif [[ ${testExecutable::3} == "ebu" ]]
+    then
         file_ext=".ebu"
         path="tests/data/ebu_data/"
+    else
+        file_ext=".ebc"
+        path="tests/data/ebc_data/"
     fi
     echo "-------------- TESTING $testExecutable --------------"
 
@@ -217,7 +237,7 @@ do
     echo "Bad Output (no write permissions)"
     filename="good"
     full_path=$path$filename$file_ext
-    run_test ./$testExecutable $full_path "tests/data/bad.out" 8 "ERROR: Bad Output(tests/data/bad.out)"
+    run_test ./$testExecutable $full_path "tests/data/bad.out" 7 "ERROR: Bad Output(tests/data/bad.out)"
 
     echo "ALTERNATIVE - Bad File Name"
     run_test ./$testExecutable $full_path "tests/data/bad.out" 2 "ERROR: Bad File Name (tests/data/bad.out)"
@@ -307,6 +327,7 @@ done
 chmod +w tests/data/bad.out
 chmod +r tests/data/ebf_data/bad_perms.ebf
 chmod +r tests/data/ebu_data/bad_perms.ebu
+chmod +r tests/data/ebc_data/bad_perms.ebc
 ###### YOU CAN EDIT BELOW THIS POINT
 
 # the run_test function has been incrementing both a counter for how many tests have run
