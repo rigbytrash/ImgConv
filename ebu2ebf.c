@@ -42,7 +42,7 @@ int main(int argc, char **argv)
     unsigned short *magicNumberValue = (unsigned short *)image->magicNumber;
 
     // checking against the casted value due to endienness.
-    switch(checkMagicNumber(magicNumberValue, inputFilename)){
+    switch(checkMagicNumber(magicNumberValue, inputFilename,0x7565)){
         case 0:
             return BAD_MAGIC_NUMBER;
         default:

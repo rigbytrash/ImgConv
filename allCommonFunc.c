@@ -29,6 +29,25 @@ int checkReadFileAccess(char *filename){
     return 2;
 }
 
+int checkMagicNumber(unsigned short *magicNumberValue, char *inputFilename, int MAGIC_NUMBER){
+    if (*magicNumberValue != MAGIC_NUMBER){
+            printf("ERROR: Bad Magic Number (%s)\n", inputFilename);
+        return 0;
+    }
+
+    return 1;
+}
+
+int dimensionScan(int check, Image *img, char *inputFilename){
+    if (check != 2 || img->height < MIN_DIMENSION || img->width < MIN_DIMENSION || img->height > MAX_DIMENSION || img->width > MAX_DIMENSION)
+    { 
+        printf("ERROR: Bad Dimensions (%s)\n", inputFilename);
+        return 0;
+    }
+
+    return 1;
+}
+
 int printEBU(Image *img, FILE *outputFile, char* outputFilename, int check){
 // writes EBU files, prior to this, the data should already be read in and converted
     if (access(outputFilename,W_OK) == -1){
@@ -142,4 +161,20 @@ int printEBC(Image *image, FILE *outputFile, char* outputFilename, int check){
         }
 
     return 2;
+}
+
+void mallocTheArray(Image *img){
+    img->imageData = (uint8_t **)malloc(img->height * sizeof(uint8_t*));
+    img->dataBlock = (uint8_t*)malloc(img->height*img->width*sizeof(uint8_t));
+    for (int i = 0; i < img->height; i = i + 1){
+        img->imageData[i] = img->dataBlock + i * img->width;
+    }
+}
+
+int isBadMalloc(Image *img){
+    if (img->dataBlock == NULL){
+        return 0;
+    }
+    
+    return 1;
 }

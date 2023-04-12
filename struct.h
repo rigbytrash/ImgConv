@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <stdio.h>
 
 typedef struct _Image {
     unsigned char magicNumber[2];
@@ -7,4 +8,5 @@ typedef struct _Image {
     uint8_t ** imageData;
     uint8_t * dataBlock;
     long long numBytes;
+    FILE *associatedFile;
 } Image;

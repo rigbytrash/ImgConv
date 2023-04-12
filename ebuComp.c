@@ -41,7 +41,7 @@ int main(int argc, char **argv)
     unsigned short *magicNumberValue1 = (unsigned short *)image1->magicNumber;
 
     // checking against the casted value due to endienness.
-    switch(checkMagicNumber(magicNumberValue1, inputFilename1)){
+    switch(checkMagicNumber(magicNumberValue1, inputFilename1,0x7565)){
         case 0:
             return BAD_MAGIC_NUMBER;
         default:
@@ -113,7 +113,7 @@ int main(int argc, char **argv)
     unsigned short *magicNumberValue2 = (unsigned short *)image2->magicNumber;
 
     // checking against the casted value due to endienness.
-    switch(checkMagicNumber(magicNumberValue2, inputFilename2)){
+    switch(checkMagicNumber(magicNumberValue2, inputFilename2,0x7565)){
         case 0:
             return BAD_MAGIC_NUMBER;
         default:
