@@ -48,7 +48,7 @@ int dimensionScan(int check, Image *img, char *inputFilename){
     return 1;
 }
 
-int printEBU(Image *img, FILE *outputFile, char* outputFilename, int check){
+int printEBU(Image *img, char* outputFilename, int check){
 // writes EBU files, prior to this, the data should already be read in and converted
     if (access(outputFilename,W_OK) == -1){
         printf("ERROR: Bad Output(%s)\n",outputFilename);
@@ -56,7 +56,7 @@ int printEBU(Image *img, FILE *outputFile, char* outputFilename, int check){
     }
 
     // write the header data in one block
-    check = fprintf(outputFile, "eu\n%d %d\n", img->height, img->width);
+    check = fprintf(img->associatedFile, "eu\n%d %d\n", img->height, img->width);
 
     if (check == 0){
             printf("ERROR: Bad Output\n");
@@ -66,7 +66,7 @@ int printEBU(Image *img, FILE *outputFile, char* outputFilename, int check){
     // iterates though the array and print out pixel values
     for (int currentRow = 0; currentRow < img->height; currentRow++){
         for (int currentCol = 0; currentCol < img->width; currentCol++){
-            check = fwrite(&img->imageData[currentRow][currentCol],sizeof(unsigned char),1,outputFile); 
+            check = fwrite(&img->imageData[currentRow][currentCol],sizeof(unsigned char),1,img->associatedFile); 
 
             if (check == 0)
             { 
@@ -79,7 +79,7 @@ int printEBU(Image *img, FILE *outputFile, char* outputFilename, int check){
     return 2;
 }
 
-int printEBF(Image *img, FILE *outputFile, char* outputFilename, int check){
+int printEBF(Image *img, char* outputFilename, int check){
 // writes EBF files, prior to this, the data should already be read in and converted
 
     if (access(outputFilename,W_OK) == -1){
@@ -88,7 +88,7 @@ int printEBF(Image *img, FILE *outputFile, char* outputFilename, int check){
     }
 
     // write the header data in one block
-    check = fprintf(outputFile, "eb\n%d %d\n", img->height, img->width);
+    check = fprintf(img->associatedFile, "eb\n%d %d\n", img->height, img->width);
 
     if (check == 0) 
         { // check write
@@ -99,7 +99,7 @@ int printEBF(Image *img, FILE *outputFile, char* outputFilename, int check){
     // iterates though the array and print out pixel values
     for (int currentRow = 0; currentRow < img->height; currentRow++){
         for (int currentCol = 0; currentCol < img->width; currentCol++){
-            check = fprintf(outputFile, "%u%c", img->imageData[currentRow][currentCol], (currentCol != img->width - 1) ? ' ' : '\n');
+            check = fprintf(img->associatedFile, "%u%c", img->imageData[currentRow][currentCol], (currentCol != img->width - 1) ? ' ' : '\n');
 
             if (check == 0)
             { // check write
@@ -112,7 +112,7 @@ int printEBF(Image *img, FILE *outputFile, char* outputFilename, int check){
     return 2;
 }
 
-int printEBC(Image *image, FILE *outputFile, char* outputFilename, int check){
+int printEBC(Image *image, char* outputFilename, int check){
 
    if (access(outputFilename,W_OK) == -1){
         printf("ERROR: Bad Output(%s)\n",outputFilename);
@@ -121,7 +121,7 @@ int printEBC(Image *image, FILE *outputFile, char* outputFilename, int check){
 
 
     // write the header data in one block
-    check = fprintf(outputFile, "ec\n%d %d\n", image->height, image->width);
+    check = fprintf(image->associatedFile, "ec\n%d %d\n", image->height, image->width);
 
     if (check == 0){
         printf("ERROR: Bad Output\n");
@@ -146,7 +146,7 @@ int printEBC(Image *image, FILE *outputFile, char* outputFilename, int check){
 
                     if (counter == 8){ // writes the output to the file when the buffer is full, then resets buffer
                         counter = 0;
-                        check = fwrite(&toOutput,sizeof(unsigned char),1,outputFile); 
+                        check = fwrite(&toOutput,sizeof(unsigned char),1,image->associatedFile); 
                         if (check == 0){
                             printf("ERROR: Bad Output\n");
                             return 1;

@@ -23,7 +23,7 @@ int main(int argc, char **argv)
 
 
     // opens the input file in read mode
-    FILE *inputFile = fopen(inputFilename, "r");
+    image->associatedFile = fopen(inputFilename, "r");
 
     // checks file opened successfully
     switch(checkReadFileAccess(inputFilename)){
@@ -37,8 +37,8 @@ int main(int argc, char **argv)
     }
 
     // gets first 2 characters which should be magic number
-    image->magicNumber[0] = getc(inputFile);
-    image->magicNumber[1] = getc(inputFile);
+    image->magicNumber[0] = getc(image->associatedFile);
+    image->magicNumber[1] = getc(image->associatedFile);
     unsigned short *magicNumberValue = (unsigned short *)image->magicNumber;
 
     // checking against the casted value due to endienness.
@@ -51,11 +51,11 @@ int main(int argc, char **argv)
 
     // scan for the dimensions
     // and capture fscanfs return to ensure we got 2 values.
-    int check = fscanf(inputFile, "%d %d", &image->height, &image->width);
+    int check = fscanf(image->associatedFile, "%d %d", &image->height, &image->width);
 
     switch(dimensionScan(check, image, inputFilename)){
         case 0:
-            fclose(inputFile);
+            fclose(image->associatedFile);
             return BAD_DIM;
         default:
             break;            
@@ -66,33 +66,33 @@ int main(int argc, char **argv)
 
     // if malloc is unsuccessful, it will return a null pointer
     if (isBadMalloc(image) == 0){
-            fclose(inputFile);
+            fclose(image->associatedFile);
             printf("ERROR: Image Malloc Failed\n");
             return BAD_MALLOC;
         }
 
-    switch(checkData(inputFile, image, inputFilename)){ // validates file perms
+    switch(checkData(image, inputFilename)){ // validates file perms
         case 0:
             free(image->imageData);
-            fclose(inputFile);
+            fclose(image->associatedFile);
             return BAD_DATA;
         case 1:
             free(image->imageData);
-            fclose(inputFile);
+            fclose(image->associatedFile);
             return BAD_DATA;
         default:
             break;
     }
 
     // file no longer used 
-    fclose(inputFile);
+    fclose(image->associatedFile);
 
     // opens the output file in write mode
-    FILE *outputFile = fopen(outputFilename, "w");
+    image->associatedFile = fopen(outputFilename, "w");
     // validate that the file has been opened correctly
 
 
-    switch(printEBF(image, outputFile, outputFilename, check)){
+    switch(printEBF(image, outputFilename, check)){
         case 0:
             free(image->imageData);
             return BAD_OUTPUT;
@@ -104,7 +104,7 @@ int main(int argc, char **argv)
     // frees allocated memory before exit
     free(image->imageData);
     // closes the output file before exit
-    fclose(outputFile);
+    fclose(image->associatedFile);
 
     // prints final success message and return
     printf("ECHOED\n");

@@ -22,7 +22,7 @@ int main(int argc, char **argv)
     char *inputFilename1 = argv[1];
 
     // opens the input file in read mode
-    FILE *inputFile1 = fopen(argv[1], "r");
+    image1->associatedFile = fopen(inputFilename1, "r");
 
     // checks file opened successfully
     switch(checkReadFileAccess(inputFilename1)){
@@ -36,8 +36,8 @@ int main(int argc, char **argv)
     }
 
     // gets first 2 characters which should be magic number
-    image1->magicNumber[0] = getc(inputFile1);
-    image1->magicNumber[1] = getc(inputFile1);
+    image1->magicNumber[0] = getc(image1->associatedFile);
+    image1->magicNumber[1] = getc(image1->associatedFile);
     unsigned short *magicNumberValue1 = (unsigned short *)image1->magicNumber;
 
     // checking against the casted value due to endienness.
@@ -50,11 +50,11 @@ int main(int argc, char **argv)
     
     // scans for the dimensions
     // and capture fscanfs return to ensure we got 2 values.
-    int check = fscanf(inputFile1, "%d %d", &image1->height, &image1->width);
+    int check = fscanf(image1->associatedFile, "%d %d", &image1->height, &image1->width);
     
     switch(dimensionScan(check, image1, inputFilename1)){
         case 0:
-            fclose(inputFile1);
+            fclose(image1->associatedFile);
             return BAD_DIM;
         default:
             break;            
@@ -65,26 +65,26 @@ int main(int argc, char **argv)
 
     // if malloc is unsuccessful, it will return a null pointer
     if (isBadMalloc(image1) == 0){
-        fclose(inputFile1);
+        fclose(image1->associatedFile);
         printf("ERROR: Image Malloc Failed\n");
         return BAD_MALLOC;
         }
 
-    switch(checkData(inputFile1, image1, inputFilename1)){
+    switch(checkData(image1, inputFilename1)){
         case 0:
             free(image1->imageData);
-            fclose(inputFile1);
+            fclose(image1->associatedFile);
             return BAD_DATA;
         case 1:
             free(image1->imageData);
-            fclose(inputFile1);
+            fclose(image1->associatedFile);
             return BAD_DATA;
         default:
             break;
     }
 
     // file no longer in use
-    fclose(inputFile1);
+    fclose(image1->associatedFile);
 
 
     // creates and initialise variables used within code
@@ -92,7 +92,7 @@ int main(int argc, char **argv)
     char *inputFilename2 = argv[2];
 
     // opens the input file in read mode
-    FILE *inputFile2 = fopen(argv[2], "r");
+    image2->associatedFile = fopen(inputFilename2, "r");
 
     // checks file opened successfully
     switch(checkReadFileAccess(inputFilename2)){
@@ -107,8 +107,8 @@ int main(int argc, char **argv)
 
 
     // get first 2 characters which should be magic number
-    image2->magicNumber[0] = getc(inputFile2);
-    image2->magicNumber[1] = getc(inputFile2);
+    image2->magicNumber[0] = getc(image2->associatedFile);
+    image2->magicNumber[1] = getc(image2->associatedFile);
     unsigned short *magicNumberValue2 = (unsigned short *)image2->magicNumber;
 
     // checking against the casted value due to endienness.
@@ -121,11 +121,11 @@ int main(int argc, char **argv)
     
     // scan for the dimensions
     // and capture fscanfs return to ensure we got 2 values.
-    check = fscanf(inputFile2, "%d %d", &image2->height, &image2->width);
+    check = fscanf(image2->associatedFile, "%d %d", &image2->height, &image2->width);
     
     switch(dimensionScan(check, image2, inputFilename2)){
         case 0:
-            fclose(inputFile2);
+            fclose(image2->associatedFile);
             return BAD_DIM;
         default:
             break;            
@@ -136,26 +136,26 @@ int main(int argc, char **argv)
 
     // if malloc is unsuccessful, it will return a null pointer
     if (isBadMalloc(image2) == 0){
-            fclose(inputFile2);
+            fclose(image2->associatedFile);
             printf("ERROR: Image Malloc Failed\n");
             return BAD_MALLOC;
         }
 
-    switch(checkData(inputFile2, image2, inputFilename2)){
+    switch(checkData(image2, inputFilename2)){
         case 0:
             free(image2->imageData);
-            fclose(inputFile1);
+            fclose(image1->associatedFile);
             return BAD_DATA;
         case 1:
             free(image2->imageData);
-            fclose(inputFile1);
+            fclose(image1->associatedFile);
             return BAD_DATA;
         default:
             break;
     }
 
     // file no longer in use
-    fclose(inputFile2);
+    fclose(image2->associatedFile);
 
     // compare the data from the two files:
     

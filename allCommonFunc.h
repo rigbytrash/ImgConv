@@ -12,11 +12,11 @@ int checkMagicNumber(unsigned short *magicNumberValue, char *inputFilename, int 
 
 int dimensionScan(int check, Image *img, char *inputFIlename);
 
-int printEBU(Image *img, FILE *outputFile, char* outputFilename, int check);
+int printEBU(Image *img, char* outputFilename, int check);
 
-int printEBF(Image *img, FILE *outputFile, char* outputFilename, int check);
+int printEBF(Image *img, char* outputFilename, int check);
 
-int printEBC(Image *img, FILE *outputFile, char* outputFilename, int check);
+int printEBC(Image *img,char* outputFilename, int check);
 
 void mallocTheArray(Image *img);
 
