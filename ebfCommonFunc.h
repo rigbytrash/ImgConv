@@ -3,4 +3,4 @@
 #include <unistd.h>
 #include "allCommonFunc.h"
 
-int checkData(Image *img, char *inputFilename);
+int checkData(Image *img);

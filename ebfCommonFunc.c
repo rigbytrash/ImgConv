@@ -5,13 +5,13 @@
 
 #define MAGIC_NUMBER 0x6265
 
-int checkData(Image *img, char *inputFilename){
+int checkData(Image *img){
     for (int currentRow = 0; currentRow < img->height; currentRow++){
         for (int currentCol = 0; currentCol < img->width; currentCol++){
         int check2 = fscanf(img->associatedFile, "%hhu", &img->imageData[currentRow][currentCol]);
         if (check2 !=1 || img->imageData[currentRow][currentCol] > MAX_DATA || img->imageData[currentRow][currentCol] < MIN_DATA)
             { // check inputted data
-            printf("ERROR: Bad Data (%s)\n", inputFilename);
+            printf("ERROR: Bad Data (%s)\n", img->AFilename);
             return 0;
             }
         }
@@ -20,8 +20,10 @@ int checkData(Image *img, char *inputFilename){
     uint8_t tmp; // checking too much
     int check2 = fscanf(img->associatedFile, "%hhu", &tmp);
     if (check2 != 0 && check2 != -1){
-        printf("ERROR: Bad Data (%s)\n", inputFilename);
+        printf("ERROR: Bad Data (%s)\n", img->AFilename);
         return 1;
     }
+    
+    fclose(img->associatedFile);
     return 2;
 }

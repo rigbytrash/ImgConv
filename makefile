@@ -9,7 +9,7 @@ CC     = gcc
 # -g enables the use of GDB
 CFLAGS = -std=c99 -Wall -Werror -g
 # this is your list of executables which you want to compile with all
-EXE    = ebfEcho ebfComp ebuEcho ebuComp ebu2ebf ebf2ebu ebu2ebc ebc2ebu ebcComp ebcEcho
+EXE    = ebfEcho ebfComp ebf2ebu ebuEcho ebuComp ebu2ebf ebcEcho ebu2ebc ebc2ebu ebcComp 
 dependencies = ebfCommonFunc.h ebcCommonFunc.h allCommonFunc.h struct.h constants.h
 # we put 'all' as the first command as this will be run if you just enter 'make'
 all: ${EXE}
@@ -39,6 +39,9 @@ ebfEcho: ebfEcho.o ebfCommonFunc.o allCommonFunc.o
 ebfComp: ebfComp.o ebfCommonFunc.o allCommonFunc.o 
 	$(CC) $(CCFLAGS) $^ -o $@
 
+ebf2ebu: ebf2ebu.o ebfCommonFunc.o allCommonFunc.o
+	$(CC) $(CCFLAGS) $^ -o $@
+
 ebuEcho: ebuEcho.o ebuCommonFunc.o allCommonFunc.o
 	$(CC) $(CCFLAGS) $^ -o $@
 
@@ -46,9 +49,6 @@ ebuComp: ebuComp.o ebuCommonFunc.o allCommonFunc.o
 	$(CC) $(CCFLAGS) $^ -o $@
 
 ebu2ebf: ebu2ebf.o ebuCommonFunc.o allCommonFunc.o
-	$(CC) $(CCFLAGS) $^ -o $@
-
-ebf2ebu: ebf2ebu.o ebfCommonFunc.o allCommonFunc.o
 	$(CC) $(CCFLAGS) $^ -o $@
 
 ebu2ebc: ebu2ebc.o ebuCommonFunc.o allCommonFunc.o

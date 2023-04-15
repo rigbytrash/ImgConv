@@ -6,18 +6,28 @@
 
 int checkargs(int argCount);
 
-int checkReadFileAccess(char *filename);
+int checkReadFileAccess(Image *img);
 
-int checkMagicNumber(unsigned short *magicNumberValue, char *inputFilename, int MAGIC_NUMBER);
+int checkMagicNumber(Image *img, int MAGIC_NUMBER);
 
-int dimensionScan(int check, Image *img, char *inputFIlename);
+int dimensionScan(Image *img);
 
-int printEBU(Image *img, char* outputFilename, int check);
+int printEBU(Image *img, char *nFilename);
 
-int printEBF(Image *img, char* outputFilename, int check);
+int printEBF(Image *img, char *nFilename);
 
-int printEBC(Image *img,char* outputFilename, int check);
+int printEBC(Image *img, char *nFilename);
 
 void mallocTheArray(Image *img);
 
 int isBadMalloc(Image *img);
+
+void setFileR(Image *img, char *name);
+
+void setFileW(Image *img, char *name);
+
+int readInFile(Image *img, char *type, char *nFilename);
+
+int checkEbfData(Image *img);
+
+int compare(Image *image1, Image *image2);
