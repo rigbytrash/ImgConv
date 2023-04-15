@@ -123,8 +123,6 @@ int printEBF(Image *img, char *nFilename){
 }
 
 int printEBC(Image *img, char *nFilename){
-    setFileW(img, nFilename);
-
    if (access(img->AFilename,W_OK) == -1){
         printf("ERROR: Bad Output(%s)\n",img->AFilename);
         return 0;
@@ -200,7 +198,6 @@ void setFileW(Image *img, char *name){
     img->AFilename = name;
     img->associatedFile = fopen(img->AFilename, "w");
 }
-
 
 int checkEbfData(Image *img){
     for (int currentRow = 0; currentRow < img->height; currentRow++){

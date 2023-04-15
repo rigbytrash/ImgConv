@@ -32,6 +32,8 @@ int main(int argc, char **argv){
     }
     
 
+    image->AFilename = argv[2];
+    image->associatedFile = fopen(image->AFilename, "wb");
     // validate that the file has been opened correctly
     switch(printEBC(image, argv[2])){
         case 0:
