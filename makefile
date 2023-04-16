@@ -33,32 +33,32 @@ clean:
 # but as you refactor and add more .c and .h files
 # these recipes will become more complex.
 
-ebfEcho: ebfEcho.o ebfCommonFunc.o allCommonFunc.o
+ebfEcho: ebfEcho.o allCommonFunc.o
 	$(CC) $(CCFLAGS) $^ -o $@
 
-ebfComp: ebfComp.o ebfCommonFunc.o allCommonFunc.o 
+ebfComp: ebfComp.o allCommonFunc.o 
 	$(CC) $(CCFLAGS) $^ -o $@
 
-ebf2ebu: ebf2ebu.o ebfCommonFunc.o allCommonFunc.o
+ebf2ebu: ebf2ebu.o allCommonFunc.o
 	$(CC) $(CCFLAGS) $^ -o $@
 
-ebuEcho: ebuEcho.o ebuCommonFunc.o allCommonFunc.o
+ebuEcho: ebuEcho.o allCommonFunc.o
 	$(CC) $(CCFLAGS) $^ -o $@
 
-ebuComp: ebuComp.o ebuCommonFunc.o allCommonFunc.o
+ebuComp: ebuComp.o allCommonFunc.o
 	$(CC) $(CCFLAGS) $^ -o $@
 
-ebu2ebf: ebu2ebf.o ebuCommonFunc.o allCommonFunc.o
+ebu2ebf: ebu2ebf.o allCommonFunc.o
 	$(CC) $(CCFLAGS) $^ -o $@
 
-ebu2ebc: ebu2ebc.o ebuCommonFunc.o allCommonFunc.o
+ebu2ebc: ebu2ebc.o allCommonFunc.o
 	$(CC) $(CCFLAGS) $^ -o $@	
 
-ebc2ebu: ebc2ebu.o ebcCommonFunc.o allCommonFunc.o
+ebc2ebu: ebc2ebu.o allCommonFunc.o
 	$(CC) $(CCFLAGS) $^ -o $@	
 
-ebcComp: ebcComp.o ebcCommonFunc.o allCommonFunc.o
+ebcComp: ebcComp.o allCommonFunc.o
 	$(CC) $(CCFLAGS) $^ -o $@	
 
-ebcEcho: ebcEcho.o ebcCommonFunc.o allCommonFunc.o
+ebcEcho: ebcEcho.o allCommonFunc.o
 	$(CC) $(CCFLAGS) $^ -o $@	

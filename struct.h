@@ -12,4 +12,5 @@ typedef struct _Image {
     long long numBytes;
     FILE *associatedFile;
     unsigned short * magicNumberValue;
+    int err;
 } Image;

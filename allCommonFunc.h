@@ -31,3 +31,7 @@ int readInFile(Image *img, char *type, char *nFilename);
 int checkEbfData(Image *img);
 
 int compare(Image *image1, Image *image2);
+
+Image *newImage();
+
+void disposeImage(Image *img);
