@@ -4,7 +4,7 @@
 #include "struct.h"
 #include "constants.h"
 
-int checkargs(int argCount);
+int checkargs(int argCount, char *name);
 
 int checkReadFileAccess(Image *img);
 

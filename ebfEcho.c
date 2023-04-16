@@ -3,14 +3,9 @@
 #include <stdlib.h>
 
 int main(int argc, char **argv){
-    switch(checkargs(argc)){
-        case 0: // when no args are given
-            printf("Usage: ebfEcho file1 file2\n");
-            return SUCCESS;
-        case 1: // when args are given but are incorrect
-            return BAD_ARGS;
-        default:
-            break;
+    int err = checkargs(argc, argv[0]); // checks to see if the args exist + are correct
+    if (err != 99){
+        return err;
     }
 
     Image *image = newImage(); // create struct to store data

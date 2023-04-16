@@ -5,17 +5,19 @@
 #include <string.h>
 
 
-int checkargs(int argCount){
+int checkargs(int argCount, char *name){
     if (argCount != 3) // there should be exe name, input filename and output filename
         {
             if(argCount == 1){
-                return 0;
+                char *newStr = name + 2; // shift pointer 2 characters to the right
+                printf("Usage: %s file1 file2\n",newStr);
+                return SUCCESS;
             }
             printf("ERROR: Bad Arguments\n");
-            return 1;
+            return BAD_ARGS;
         }
         
-    return 2;
+    return 99;
 }
 
 int checkReadFileAccess(Image *img){
