@@ -122,7 +122,8 @@ int printEBF(Image *img, char *nFilename){  // writes EBF files; prior to this, 
 }
 
 int printEBC(Image *img, char *nFilename){
-   if (access(img->AFilename,W_OK) == -1){  // if access fails
+    setFileW(img, nFilename);
+    if (access(img->AFilename,W_OK) == -1){  // if access fails
         printf("ERROR: Bad Output(%s)\n",img->AFilename);
         disposeImage(img);
         return BAD_OUTPUT;
@@ -137,7 +138,7 @@ int printEBC(Image *img, char *nFilename){
 
     int counter = 0;
     unsigned char mask1 = (unsigned char) 0x80; // bitmask of 10000000, to grab 1st bit of 8-bit seq.
-    uint8_t toOutput;   // stores the final value to write
+    uint8_t toOutput = 0;   // stores the final value to write
     uint8_t toSaveToOutput; // stores the values to be added to output (buffer)
     uint8_t current;    // stores the current value being read from Image struct
 
@@ -196,8 +197,16 @@ void setFileR(Image *img, char *name){  // sets the filepath in read mode
 }
 
 void setFileW(Image *img, char *name){  // sets the filepath in write mode
-    img->AFilename = name;
-    img->associatedFile = fopen(img->AFilename, "w");
+    char substr[] = "ebc";
+    if (strstr(name, substr) != NULL){  // Using strstr function to check if the string contains the substring
+        img->AFilename = name;
+        img->associatedFile = fopen(img->AFilename, "wb");  // if ebc, needs to be writen in binary mode
+    }
+    else {
+        img->AFilename = name;
+        img->associatedFile = fopen(img->AFilename, "w");
+    }
+
 }
 
 int checkEbfData(Image *img){   // reads in ebf data; stores to Image struct
