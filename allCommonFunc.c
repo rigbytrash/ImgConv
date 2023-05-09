@@ -278,6 +278,8 @@ int checkEbcData(Image *img){   // reads in ebc data; stores to Image struct
                 printf("ERROR: Bad Data (%s)\n", img->AFilename);
                 fclose(img->associatedFile);
                 disposeImage(img);
+                free(dataBlockForEbc);
+                free(imageDataForEbc);
                 return 0;
             }
         }
@@ -289,6 +291,8 @@ int checkEbcData(Image *img){   // reads in ebc data; stores to Image struct
             printf("ERROR: Bad Data (%s)\n", img->AFilename);
             fclose(img->associatedFile);
             disposeImage(img);
+            free(dataBlockForEbc);
+            free(imageDataForEbc);
             return 0;
         }
 
@@ -323,6 +327,8 @@ int checkEbcData(Image *img){   // reads in ebc data; stores to Image struct
                         printf("ERROR: Bad Data (%s)\n", img->AFilename);
                         fclose(img->associatedFile);
                         disposeImage(img);
+                        free(dataBlockForEbc);
+                        free(imageDataForEbc);
                         return 0;
                     }
 
@@ -340,6 +346,8 @@ int checkEbcData(Image *img){   // reads in ebc data; stores to Image struct
         }
     }
     
+    free(dataBlockForEbc);
+    free(imageDataForEbc);
     return 2;   // success
 }
 
