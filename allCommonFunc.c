@@ -454,5 +454,6 @@ Image* newImage(){  // initialises the custom Image stuct
 void disposeImage(Image *img){  // frees the memory reserved for the Image struct
     free(img->dataBlock);
     free(img->imageData);
+    free(img);
     return;
 }
