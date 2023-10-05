@@ -2,7 +2,7 @@
 
 This software will convert image data from one file format to another. It makes use of bit-packing.
 
-This project has been taken from my private university github account, so commit history/comments are not available.
+This project has been taken from my private university github account, so commit history/comments are often wrong
 
 Some more info is below.
 
